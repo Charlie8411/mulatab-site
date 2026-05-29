@@ -1115,23 +1115,49 @@
     item.classList.toggle('open');
   }
 
-  function joinWaitlist(e){
-    e.preventDefault();
-    const form = e.target;
-    const email = form.querySelector('input').value;
-    if(!email) return;
-
-    // Hide the main form, show success
-    const mainForm = document.getElementById('waitlist-form');
-    const success = document.getElementById('form-success');
-    if(form === mainForm){
-      mainForm.style.display = 'none';
-      success.classList.add('shown');
-    } else {
-      // Bottom form - just show alert
-      form.innerHTML = '<div style="padding:14px 20px;color:var(--mint);font-weight:500">✓ You\'re on the list. Check your inbox.</div>';
+  async function joinWaitlist(e){
+      e.preventDefault();
+      const form = e.target;
+      const email = form.querySelector('input').value;
+      if(!email) return;
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+        alert('Please enter a valid email address.');
+        return;
+      }
+      const btn = form.querySelector('button');
+      const originalBtnText = btn ? btn.innerHTML : '';
+      if(btn){ btn.innerHTML = 'Joining...'; btn.disabled = true; }
+      try {
+        const res = await fetch('https://api.airtable.com/v0/appHnd4J0kRjBiV2d/Signups', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer pataSqHVq7AVp8XJn.cc5431aef26ec242226b86471c575c4b3454e89cdeb2e411c3d3474a4fc1ab9c',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            records: [{
+              fields: {
+                'Email': email,
+                'Source': 'mulatab.com',
+                'Lead Status': 'New'
+              }
+            }]
+          })
+        });
+        if(!res.ok) throw new Error('Signup failed');
+        const mainForm = document.getElementById('waitlist-form');
+        const success = document.getElementById('form-success');
+        if(form === mainForm){
+          mainForm.style.display = 'none';
+          success.classList.add('shown');
+        } else {
+          form.innerHTML = '<div style="padding:14px 20px;color:var(--mint);font-weight:500">You\'re on the list. Check your inbox.</div>';
+        }
+      } catch(err) {
+        if(btn){ btn.innerHTML = originalBtnText; btn.disabled = false; }
+        alert('Something went wrong. Please try again.');
+      }
     }
-  }
 </script>
 
 </body>

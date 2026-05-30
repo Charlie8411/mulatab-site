@@ -1115,7 +1115,7 @@
     item.classList.toggle('open');
   }
 
-  async function joinWaitlist(e){
+async function joinWaitlist(e){
       e.preventDefault();
       const form = e.target;
       const email = form.querySelector('input').value;
@@ -1128,20 +1128,10 @@
       const originalBtnText = btn ? btn.innerHTML : '';
       if(btn){ btn.innerHTML = 'Joining...'; btn.disabled = true; }
       try {
-        const res = await fetch('https://api.airtable.com/v0/appHnd4J0kRjBiV2d/Signups', {
+        const res = await fetch('/api/signup', {
           method: 'POST',
-          headers: {
-            'Authorization': 'Bearer pataSqHVq7AVp8XJn.cc5431aef26ec242226b86471c575c4b3454e89cdeb2e411c3d3474a4fc1ab9c',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            records: [{
-              fields: {
-                'Email': email,
-                'Source': 'mulatab.com'
-              }
-            }]
-          })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email })
         });
         if(!res.ok) throw new Error('Signup failed');
         const mainForm = document.getElementById('waitlist-form');
@@ -1157,7 +1147,6 @@
         alert('Something went wrong. Please try again.');
       }
     }
-</script>
 
 </body>
 </html>

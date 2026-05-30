@@ -1116,7 +1116,7 @@
   }
 
 async function joinWaitlist(e){
-      event.preventDefault();
+      e.preventDefault();
       const form = e.target;
       const email = form.querySelector('input').value;
       if(!email) return;

@@ -826,22 +826,51 @@
     margin-top:10px;
   }
 
+  /* ===== MOBILE FIXES (≤600px) ===== */
+  @media (max-width:600px){
+    .hero,
+    .how-section,
+    .features-section,
+    .pricing-section,
+    .faq-section,
+    .cta-footer{
+      padding-left:20px;
+      padding-right:20px;
+    }
+    .hero{padding-top:100px;padding-bottom:60px}
 
-  /* ===== MOBILE FORM FIX (Carlos) ===== */
-  @media (max-width: 600px) {
-    .waitlist-form {
-      flex-direction: column;
-      width: 100%;
-      max-width: 100%;
+    .waitlist-form{
+      flex-direction:column !important;
+      max-width:100% !important;
+      width:100%;
     }
-    .waitlist-form input {
-      width: 100%;
-      min-width: 0;
+    .waitlist-form input{
+      width:100%;
+      min-width:0;
     }
-    .waitlist-form button {
-      width: 100%;
-      white-space: normal;
+   .waitlist-form button{
+      width:100% !important;
+      justify-content:center;
     }
+
+    .form-success{max-width:100%}
+
+    .hero-phone{
+      width:100%;
+      max-width:300px;
+      height:600px;
+    }
+
+    h1.hero-title{font-size:40px}
+    .cta-footer h2{font-size:34px}
+    h2.section-title{font-size:30px}
+
+    .footer-inner{
+      flex-direction:column;
+      align-items:flex-start;
+      text-align:left;
+    }
+    .footer-links{flex-wrap:wrap}
   }
 
 </style>
@@ -874,9 +903,9 @@
       </form>
       <div class="form-success" id="form-success">
         <div class="check">✓</div>
-        <h4>You're on the list.</h4>
+        <h4 id="welcome-msg">You're on the list.</h4>
         <p>We'll email you when iOS beta opens — June 2026.</p>
-        <div class="position">YOU'RE #4,247 IN LINE</div>
+        
       </div>
 
       <div class="waitlist-meta">
@@ -886,7 +915,7 @@
           <div class="md m3">A</div>
           <div class="md m4">J</div>
         </div>
-        <span><strong>Be the first to try it</strong></span>
+        <span>Be the first to try it</span>
       </div>
     </div>
 
@@ -1133,23 +1162,43 @@
     item.classList.toggle('open');
   }
 
-  function joinWaitlist(e){
-    e.preventDefault();
-    const form = e.target;
-    const email = form.querySelector('input').value;
-    if(!email) return;
-
-    // Hide the main form, show success
-    const mainForm = document.getElementById('waitlist-form');
-    const success = document.getElementById('form-success');
-    if(form === mainForm){
-      mainForm.style.display = 'none';
-      success.classList.add('shown');
-    } else {
-      // Bottom form - just show alert
-      form.innerHTML = '<div style="padding:14px 20px;color:var(--mint);font-weight:500">✓ You\'re on the list. Check your inbox.</div>';
+async function joinWaitlist(e){
+      e.preventDefault();
+      const form = e.target;
+      const email = form.querySelector('input').value;
+      if(!email) return;
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+        alert('Please enter a valid email address.');
+        return;
+      }
+      const btn = form.querySelector('button');
+      const originalBtnText = btn ? btn.innerHTML : '';
+      if(btn){ btn.innerHTML = 'Joining...'; btn.disabled = true; }
+      try {
+        const res = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email })
+        });
+        if(!res.ok) throw new Error('Signup failed');
+        const data = await res.json();
+        const mainForm = document.getElementById('waitlist-form');
+        const success = document.getElementById('form-success');
+        if(form === mainForm){
+          const welcomeMsg = document.getElementById('welcome-msg');
+          if(welcomeMsg && data.position){
+            welcomeMsg.textContent = `Welcome, you're number ${data.position}. The Mulatab team is excited you're here.`;
+          }
+          mainForm.style.display = 'none';
+          success.classList.add('shown');
+        } else {
+          form.innerHTML = '<div style="padding:14px 20px;color:var(--mint);font-weight:500">You\'re on the list. Check your inbox.</div>';
+        }
+      } catch(err) {
+        if(btn){ btn.innerHTML = originalBtnText; btn.disabled = false; }
+        alert('Something went wrong. Please try again.');
+      }
     }
-  }
 </script>
 
 <!-- Vercel Web Analytics -->

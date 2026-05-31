@@ -212,12 +212,12 @@
   .hero-phone-wrap{
     position:relative;
     display:flex;
-    justify-content:center;
+    justify-content:center;F
     align-items:center;
     perspective:1200px;
   }
   .hero-phone{
-    width:320px;
+    width:320px;F
     height:640px;
     background:var(--ink-2);
     border-radius:42px;
@@ -825,6 +825,55 @@
     font-weight:600;
     margin-top:10px;
   }
+  }
+
+  /* ===== MOBILE FIXES (≤600px) ===== */
+  @media (max-width:600px){
+    .hero,
+    .how-section,
+    .features-section,
+    .pricing-section,
+    .faq-section,
+    .cta-footer{
+      padding-left:20px;
+      padding-right:20px;
+    }
+    .hero{padding-top:100px;padding-bottom:60px}
+
+    .waitlist-form{
+      flex-direction:column;
+      max-width:100%;
+    }
+    .waitlist-form input{
+      width:100%;
+      min-width:0;
+    }
+    .waitlist-form button{
+      width:100%;
+      justify-content:center;
+    }
+
+    .form-success{max-width:100%}
+
+    .hero-phone{
+      width:100%;
+      max-width:300px;
+      height:600px;
+    }
+
+    h1.hero-title{font-size:40px}
+    .cta-footer h2{font-size:34px}
+    h2.section-title{font-size:30px}
+
+    .footer-inner{
+      flex-direction:column;
+      align-items:flex-start;
+      text-align:left;
+    }
+    .footer-links{flex-wrap:wrap}
+  }
+
+</style>
 
 </style>
 </head>

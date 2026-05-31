@@ -856,9 +856,9 @@
       </form>
       <div class="form-success" id="form-success">
         <div class="check">✓</div>
-        <h4>You're on the list.</h4>
+        <h4 id="welcome-msg">You're on the list.</h4>
         <p>We'll email you when iOS beta opens — June 2026.</p>
-        <div class="position">YOU'RE #4,247 IN LINE</div>
+        
       </div>
 
       <div class="waitlist-meta">
@@ -868,7 +868,7 @@
           <div class="md m3">A</div>
           <div class="md m4">J</div>
         </div>
-        <span><strong>4,246</strong> friend groups already in line</span>
+        <span>Join the founding members</span>
       </div>
     </div>
 
@@ -1134,9 +1134,14 @@ async function joinWaitlist(e){
           body: JSON.stringify({ email: email })
         });
         if(!res.ok) throw new Error('Signup failed');
+        const data = await res.json();
         const mainForm = document.getElementById('waitlist-form');
         const success = document.getElementById('form-success');
         if(form === mainForm){
+          const welcomeMsg = document.getElementById('welcome-msg');
+          if(welcomeMsg && data.position){
+            welcomeMsg.textContent = `Welcome, you're number ${data.position}. The Mulatab team is excited you're here.`;
+          }
           mainForm.style.display = 'none';
           success.classList.add('shown');
         } else {

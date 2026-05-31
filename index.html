@@ -33,7 +33,7 @@
     overflow-x:hidden;
     line-height:1.5;
   }
-
+ 
   /* ===== HEADER NAV ===== */
   nav.top{
     position:fixed;
@@ -79,7 +79,7 @@
   @media (max-width:720px){
     .nav-links a:not(.nav-cta){display:none}
   }
-
+ 
   /* ===== HERO ===== */
   .hero{
     min-height:100vh;
@@ -207,17 +207,17 @@
   .meta-dots .md.m2{background:linear-gradient(135deg,#7FE7C4,#3FB68C)}
   .meta-dots .md.m3{background:linear-gradient(135deg,#9B8AFB,#6B5DD3)}
   .meta-dots .md.m4{background:linear-gradient(135deg,#E8C26A,#D4A04A)}
-
+ 
   /* Hero phone visual */
   .hero-phone-wrap{
     position:relative;
     display:flex;
-    justify-content:center;F
+    justify-content:center;
     align-items:center;
     perspective:1200px;
   }
   .hero-phone{
-    width:320px;F
+    width:320px;
     height:640px;
     background:var(--ink-2);
     border-radius:42px;
@@ -329,7 +329,7 @@
   }
   .hp-tab .amt.up{color:var(--mint)}
   .hp-tab .amt.dn{color:var(--coral)}
-
+ 
   /* Floating badges around phone */
   .float-badge{
     position:absolute;
@@ -352,7 +352,7 @@
     0%,100%{transform:translateY(0)}
     50%{transform:translateY(-8px)}
   }
-
+ 
   @media (max-width:900px){
     .hero-inner{grid-template-columns:1fr;text-align:center}
     h1.hero-title{font-size:48px}
@@ -361,7 +361,7 @@
     .hero-phone-wrap{margin-top:40px}
     .float-badge{display:none}
   }
-
+ 
   /* ===== HOW IT WORKS ===== */
   .how-section{
     padding:120px 32px;
@@ -397,7 +397,7 @@
     max-width:600px;
     margin-bottom:60px;
   }
-
+ 
   .how-grid{
     display:grid;
     grid-template-columns:1fr 1fr 1fr;
@@ -432,7 +432,7 @@
     font-size:14px;
     line-height:1.55;
   }
-
+ 
   /* Animated comparison */
   .comparison-block{
     margin-top:80px;
@@ -484,7 +484,7 @@
     color:var(--muted);
     text-transform:uppercase;
   }
-
+ 
   .arrow-flow{
     display:flex;
     flex-direction:column;
@@ -512,14 +512,14 @@
     background:rgba(127,231,196,0.06);
   }
   .flow-item .nm{font-family:'Geist Mono',monospace}
-
+ 
   @media (max-width:900px){
     .how-grid{grid-template-columns:1fr;gap:16px}
     h2.section-title{font-size:36px}
     .comparison-block{grid-template-columns:1fr;padding:32px;gap:32px}
     .comp-text h3{font-size:28px}
   }
-
+ 
   /* ===== FEATURES GRID ===== */
   .features-section{
     padding:120px 32px;
@@ -582,7 +582,7 @@
     .features-grid{grid-template-columns:1fr}
     .feature-tile.large{grid-column:span 1}
   }
-
+ 
   /* ===== PRICING ===== */
   .pricing-section{
     padding:120px 32px;
@@ -669,7 +669,7 @@
   @media (max-width:900px){
     .pricing-grid{grid-template-columns:1fr}
   }
-
+ 
   /* ===== FAQ ===== */
   .faq-section{
     padding:120px 32px;
@@ -713,7 +713,7 @@
     max-height:400px;
     padding-top:14px;
   }
-
+ 
   /* ===== CTA FOOTER ===== */
   .cta-footer{
     padding:140px 32px;
@@ -745,7 +745,7 @@
   @media (max-width:900px){
     .cta-footer h2{font-size:40px}
   }
-
+ 
   /* ===== FOOTER ===== */
   footer.site{
     padding:48px 32px;
@@ -784,7 +784,7 @@
     color:var(--muted);
     letter-spacing:0.1em;
   }
-
+ 
   /* Success state for form */
   .form-success{
     background:linear-gradient(135deg, rgba(127,231,196,0.15), rgba(127,231,196,0.05));
@@ -825,59 +825,29 @@
     font-weight:600;
     margin-top:10px;
   }
+ 
+ 
+  /* ===== MOBILE FORM FIX (Carlos) ===== */
+  @media (max-width: 600px) {
+    .waitlist-form {
+      flex-direction: column;
+      width: 100%;
+      max-width: 100%;
+    }
+    .waitlist-form input {
+      width: 100%;
+      min-width: 0;
+    }
+    .waitlist-form button {
+      width: 100%;
+      white-space: normal;
+    }
   }
-
-  /* ===== MOBILE FIXES (≤600px) ===== */
-  @media (max-width:600px){
-    .hero,
-    .how-section,
-    .features-section,
-    .pricing-section,
-    .faq-section,
-    .cta-footer{
-      padding-left:20px;
-      padding-right:20px;
-    }
-    .hero{padding-top:100px;padding-bottom:60px}
-
-    .waitlist-form{
-      flex-direction:column !important;
-      max-width:100% !important;
-      width:100%;
-    }
-    .waitlist-form input{
-      width:100%;
-      min-width:0;
-    }
-   .waitlist-form button{
-      width:100% !important;
-      justify-content:center;
-    }
-
-    .form-success{max-width:100%}
-
-    .hero-phone{
-      width:100%;
-      max-width:300px;
-      height:600px;
-    }
-
-    h1.hero-title{font-size:40px}
-    .cta-footer h2{font-size:34px}
-    h2.section-title{font-size:30px}
-
-    .footer-inner{
-      flex-direction:column;
-      align-items:flex-start;
-      text-align:left;
-    }
-    .footer-links{flex-wrap:wrap}
-  }
-
+ 
 </style>
 </head>
 <body>
-
+ 
 <!-- ========== NAV ========== -->
 <nav class="top">
   <div class="nav-brand">Mulatab<span class="dot">.</span></div>
@@ -889,7 +859,7 @@
     <a href="#waitlist" class="nav-cta">Join waitlist</a>
   </div>
 </nav>
-
+ 
 <!-- ========== HERO ========== -->
 <section class="hero" id="waitlist">
   <div class="hero-inner">
@@ -897,18 +867,18 @@
       <div class="eyebrow"><span class="pulse"></span>NOW IN PRIVATE BETA</div>
       <h1 class="hero-title">Group money,<br><em>finally solved.</em></h1>
       <p class="hero-sub">Track shared expenses, split receipts with your camera, and settle the whole tab in one tap. Built for the friend group's money person — finally.</p>
-
+ 
       <form class="waitlist-form" onsubmit="joinWaitlist(event)" id="waitlist-form">
         <input type="email" placeholder="your@email.com" required id="waitlist-email" />
         <button type="submit">Join the waitlist →</button>
       </form>
       <div class="form-success" id="form-success">
         <div class="check">✓</div>
-        <h4 id="welcome-msg">You're on the list.</h4>
+        <h4>You're on the list.</h4>
         <p>We'll email you when iOS beta opens — June 2026.</p>
-        
+        <div class="position">YOU'RE #4,247 IN LINE</div>
       </div>
-
+ 
       <div class="waitlist-meta">
         <div class="meta-dots">
           <div class="md m1">S</div>
@@ -916,10 +886,10 @@
           <div class="md m3">A</div>
           <div class="md m4">J</div>
         </div>
-        <span>Join the founding members</span>
+        <span><strong>4,246</strong> friend groups already in line</span>
       </div>
     </div>
-
+ 
     <div class="hero-phone-wrap">
       <div class="float-badge fb1">
         <span class="b-emoji">⚡</span>
@@ -933,7 +903,7 @@
         <span class="b-emoji">✨</span>
         <span><strong style="color:var(--cream)">Settled!</strong><br><span style="color:var(--muted);font-size:10px">share recap</span></span>
       </div>
-
+ 
       <div class="hero-phone">
         <div class="hp-greeting">Hey, <em>Jordan</em></div>
         <div class="hp-greeting-sub">3 open tabs · $127 to collect</div>
@@ -962,14 +932,14 @@
     </div>
   </div>
 </section>
-
+ 
 <!-- ========== HOW IT WORKS ========== -->
 <section class="how-section" id="how">
   <div class="section-inner">
     <div class="section-eyebrow">HOW IT WORKS</div>
     <h2 class="section-title">Three steps from <em>chaos</em> to <em>closed.</em></h2>
     <p class="section-sub">No more spreadsheets at 1am. No more 14-text-long Venmo arguments. No more "who paid for the Airbnb again?"</p>
-
+ 
     <div class="how-grid">
       <div class="how-card">
         <div class="how-num">01</div>
@@ -987,7 +957,7 @@
         <p>One tap moves all the money — ACH for free or instant for 1.5%. Everyone closed, no spreadsheet required, ever.</p>
       </div>
     </div>
-
+ 
     <div class="comparison-block">
       <div class="comp-text">
         <h3>The <em>9 → 3</em> moment.</h3>
@@ -1016,14 +986,14 @@
     </div>
   </div>
 </section>
-
+ 
 <!-- ========== FEATURES ========== -->
 <section class="features-section" id="features">
   <div class="section-inner">
     <div class="section-eyebrow">FEATURES</div>
     <h2 class="section-title">Built for the way friends <em>actually</em> spend.</h2>
     <p class="section-sub">Every feature exists because someone's group chat needed it. None exist for the sake of looking fintech.</p>
-
+ 
     <div class="features-grid">
       <div class="feature-tile large">
         <div class="ft-decoration">MULATAB+</div>
@@ -1031,25 +1001,25 @@
         <h3>Scan a receipt. <em>Split it instantly.</em></h3>
         <p>Point your camera at any restaurant check. Mulatab's AI reads the items, the tax, and the tip — then lets you tap each person's avatar to mark who ordered what. The moment you'll show your friends at dinner.</p>
       </div>
-
+ 
       <div class="feature-tile">
         <div class="ft-emoji">🏷️</div>
         <h3>Tabs, not payments.</h3>
         <p>A Tab is the whole event: the trip, the dinner, the month of roommate bills. It tracks every receipt and every person until everyone's settled.</p>
       </div>
-
+ 
       <div class="feature-tile">
         <div class="ft-emoji">🔁</div>
         <h3>Recurring tabs.</h3>
         <p>Set up household rent splits, utility bills, or any monthly group expense once. Mulatab handles the rest, every month, forever.</p>
       </div>
-
+ 
       <div class="feature-tile">
         <div class="ft-emoji">🏆</div>
         <h3>Earn status, not cashback.</h3>
         <p>Drifter → Regular → Closer → Treasurer → Legend. Climb tiers by closing tabs (not by spending money) and unlock themes, badges, and a year-in-review wrap.</p>
       </div>
-
+ 
       <div class="feature-tile">
         <div class="ft-emoji">✨</div>
         <h3>Shareable settled-cards.</h3>
@@ -1058,14 +1028,14 @@
     </div>
   </div>
 </section>
-
+ 
 <!-- ========== PRICING ========== -->
 <section class="pricing-section" id="pricing">
   <div class="section-inner">
     <div class="section-eyebrow">PRICING</div>
     <h2 class="section-title">Free forever for the <em>basics.</em></h2>
     <p class="section-sub">The core utility — Tabs, split tracking, smart settle, payments — is free for everyone. Pay only if you want the power-user kit.</p>
-
+ 
     <div class="pricing-grid">
       <div class="price-card">
         <div class="price-name"><em>Mulatab</em></div>
@@ -1080,7 +1050,7 @@
           <li class="muted">Manual receipt entry only</li>
         </ul>
       </div>
-
+ 
       <div class="price-card featured">
         <div class="price-name"><span class="plus">Mulatab+</span></div>
         <p class="price-desc">For the money person who runs every group chat.</p>
@@ -1097,13 +1067,13 @@
     </div>
   </div>
 </section>
-
+ 
 <!-- ========== FAQ ========== -->
 <section class="faq-section" id="faq">
   <div class="section-inner">
     <div class="section-eyebrow">FAQ</div>
     <h2 class="section-title">Questions, <em>answered.</em></h2>
-
+ 
     <div class="faq-list">
       <div class="faq-item" onclick="toggleFaq(this)">
         <div class="faq-q">Is Mulatab a bank? <span class="icon">+</span></div>
@@ -1132,7 +1102,7 @@
     </div>
   </div>
 </section>
-
+ 
 <!-- ========== CTA ========== -->
 <section class="cta-footer">
   <h2>Stop being the <em>money person.</em></h2>
@@ -1142,7 +1112,7 @@
     <button type="submit">Join the waitlist →</button>
   </form>
 </section>
-
+ 
 <!-- ========== FOOTER ========== -->
 <footer class="site">
   <div class="footer-inner">
@@ -1157,49 +1127,36 @@
     <div class="footer-meta">© 2026 MULATAB INC.</div>
   </div>
 </footer>
-
+ 
 <script>
   function toggleFaq(item){
     item.classList.toggle('open');
   }
-
-async function joinWaitlist(e){
-      e.preventDefault();
-      const form = e.target;
-      const email = form.querySelector('input').value;
-      if(!email) return;
-      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-        alert('Please enter a valid email address.');
-        return;
-      }
-      const btn = form.querySelector('button');
-      const originalBtnText = btn ? btn.innerHTML : '';
-      if(btn){ btn.innerHTML = 'Joining...'; btn.disabled = true; }
-      try {
-        const res = await fetch('/api/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email })
-        });
-        if(!res.ok) throw new Error('Signup failed');
-        const data = await res.json();
-        const mainForm = document.getElementById('waitlist-form');
-        const success = document.getElementById('form-success');
-        if(form === mainForm){
-          const welcomeMsg = document.getElementById('welcome-msg');
-          if(welcomeMsg && data.position){
-            welcomeMsg.textContent = `Welcome, you're number ${data.position}. The Mulatab team is excited you're here.`;
-          }
-          mainForm.style.display = 'none';
-          success.classList.add('shown');
-        } else {
-          form.innerHTML = '<div style="padding:14px 20px;color:var(--mint);font-weight:500">You\'re on the list. Check your inbox.</div>';
-        }
-      } catch(err) {
-        if(btn){ btn.innerHTML = originalBtnText; btn.disabled = false; }
-        alert('Something went wrong. Please try again.');
-      }
+ 
+  function joinWaitlist(e){
+    e.preventDefault();
+    const form = e.target;
+    const email = form.querySelector('input').value;
+    if(!email) return;
+ 
+    // Hide the main form, show success
+    const mainForm = document.getElementById('waitlist-form');
+    const success = document.getElementById('form-success');
+    if(form === mainForm){
+      mainForm.style.display = 'none';
+      success.classList.add('shown');
+    } else {
+      // Bottom form - just show alert
+      form.innerHTML = '<div style="padding:14px 20px;color:var(--mint);font-weight:500">✓ You\'re on the list. Check your inbox.</div>';
     }
+  }
 </script>
+ 
+<!-- Vercel Web Analytics -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+ 
 </body>
 </html>

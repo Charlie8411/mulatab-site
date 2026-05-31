@@ -1,0 +1,20 @@
+{
+  "name": "Mulatab Demo",
+  "short_name": "Mulatab",
+  "start_url": "/demo-app/index.html",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "icons": [
+    {
+      "src": "/demo-app/icons/mulatab-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/demo-app/icons/mulatab-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -220,6 +220,26 @@
   }
   .founder-perk strong{color:var(--mint);font-weight:600}
 
+  .demo-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:transparent;
+    color:var(--mint);
+    border:1.5px solid var(--mint);
+    padding:12px 22px;
+    border-radius:100px;
+    font-family:'Geist',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    text-decoration:none;
+    transition:background .2s, transform .2s;
+  }
+  .demo-btn:hover{
+    background:rgba(127,231,196,0.12);
+    transform:scale(1.03);
+  }
+
   /* Hero phone visual */
   .hero-phone-wrap{
     position:relative;
@@ -897,6 +917,7 @@
     <a href="#features">Features</a>
     <a href="#pricing">Pricing</a>
     <a href="#faq">FAQ</a>
+    <a href="/demo.html" target="_blank">See demo</a>
     <a href="#waitlist" class="nav-cta">Join waitlist</a>
   </div>
 </nav>
@@ -921,6 +942,10 @@
       </div>
 
       <div class="founder-perk">🎉 First 500 members get <strong>6 months of Mulatab+ free</strong></div>
+
+      <div style="margin-top:18px">
+        <a href="/demo.html" target="_blank" class="demo-btn">▶ See the live demo</a>
+      </div>
 
       <div class="waitlist-meta">
         <div class="meta-dots">

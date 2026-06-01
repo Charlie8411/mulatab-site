@@ -1,441 +1,1362 @@
-<div id="mulatab-demo-app">
-  <style>
-    #mulatab-demo-app {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-      width: 100%;
-      height: 100%;
-      color: #e5f4ff;
-    }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>Mulatab Demo UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: '#0E1726',
+                        navyDeep: '#0a1220',
+                        navyMid: '#162033',
+                        cardDark: '#1E2B42',
+                        cardMid: '#243250',
+                        coral: '#7FE7C4',
+                        magenta: '#3FB68C',
+                        teal: '#7FE7C4',
+                        gold: '#E8C26A',
+                        softWhite: '#F5F0E6',
+                        mutedText: '#8493AC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        /* ========== BASE STYLES ========== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a1220 0%, #0E1726 50%, #162033 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            color: #F5F0E6;
+        }
 
-    .mt-shell {
-      width: 100%;
-      height: 100%;
-      border-radius: 28px;
-      background: radial-gradient(circle at top, #020617 0, #020617 45%, #000 100%);
-      padding: 18px 16px;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-    }
+        /* ========== PHONE FRAME ========== */
+        .phone-frame {
+            width: 100%;
+            max-width: 390px;
+            min-height: 844px;
+            max-height: 844px;
+            background: #0E1726;
+            border-radius: 44px;
+            border: 3px solid #243250;
+            box-shadow: 0 0 60px rgba(127,231,196,0.15), 0 0 120px rgba(127,231,196,0.08), 0 25px 50px rgba(0,0,0,0.6);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .mt-status {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      color: #64748b;
-      margin-bottom: 8px;
-    }
+        /* On small screens, fill the viewport */
+        @media (max-width: 430px) {
+            body { padding: 0; align-items: stretch; }
+            .phone-frame {
+                max-width: 100%;
+                min-height: 100vh;
+                max-height: 100vh;
+                border-radius: 0;
+                border: none;
+            }
+        }
 
-    .mt-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 9px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.9);
-      font-size: 10px;
-      color: #cbd5f5;
-    }
+        /* ========== DEMO NAV (top pill) ========== */
+        .demo-nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 16px 4px;
+            background: #0E1726;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+        .demo-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #243250;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .demo-dot.active {
+            background: linear-gradient(135deg, #7FE7C4, #3FB68C);
+            width: 20px;
+            border-radius: 4px;
+        }
 
-    .mt-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: #22c55e;
-    }
+        /* ========== SCREEN CONTAINER ========== */
+        .screen-area {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+            scrollbar-width: none;
+        }
+        .screen-area::-webkit-scrollbar { display: none; }
 
-    .mt-screen {
-      flex: 1;
-      border-radius: 22px;
-      background: radial-gradient(circle at top left, #020617 0, #020617 55%, #020617 100%);
-      padding: 18px 16px;
-      display: none;
-      flex-direction: column;
-      gap: 14px;
-      box-sizing: border-box;
-    }
+        .screen {
+            display: none;
+            flex-direction: column;
+            min-height: 100%;
+            opacity: 0;
+            transform: translateX(30px);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        .screen.active {
+            display: flex;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .screen.slide-out {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
 
-    .mt-screen.active {
-      display: flex;
-      animation: mt-fade 220ms ease-out;
-    }
+        /* ========== GRADIENT HELPERS ========== */
+        .grad-coral { background: linear-gradient(135deg, #7FE7C4, #3FB68C); }
+        .grad-coral-text { background: linear-gradient(135deg, #7FE7C4, #3FB68C); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .grad-gold { background: linear-gradient(135deg, #E8C26A, #D4A04A); }
 
-    @keyframes mt-fade {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+        /* ========== BUTTONS ========== */
+        .btn-primary {
+            background: linear-gradient(135deg, #7FE7C4, #3FB68C);
+            color: #0E1726;
+            font-weight: 700;
+            border-radius: 9999px;
+            padding: 14px 24px;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: transform 0.15s, box-shadow 0.15s;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .btn-primary:hover { transform: scale(1.02); box-shadow: 0 8px 30px rgba(127,231,196,0.35); }
+        .btn-primary:active { transform: scale(0.98); }
 
-    .mt-kicker {
-      font-size: 11px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: #7dd3fc;
-    }
+        .btn-teal {
+            background: #7FE7C4;
+            color: #0E1726;
+            font-weight: 700;
+            border-radius: 9999px;
+            padding: 12px 20px;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Inter', system-ui, sans-serif;
+            transition: transform 0.15s;
+        }
+        .btn-teal:hover { transform: scale(1.02); }
 
-    .mt-title {
-      font-size: 18px;
-      font-weight: 600;
-    }
+        .btn-outline {
+            background: transparent;
+            color: #F5F0E6;
+            font-weight: 600;
+            border-radius: 9999px;
+            padding: 12px 20px;
+            text-align: center;
+            border: 1.5px solid rgba(245,240,230,0.3);
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+            font-family: 'Inter', system-ui, sans-serif;
+            transition: border-color 0.2s;
+        }
+        .btn-outline:hover { border-color: #7FE7C4; color: #7FE7C4; }
 
-    .mt-sub {
-      font-size: 12px;
-      color: #94a3b8;
-      line-height: 1.4;
-    }
+        /* ========== INPUT FIELDS ========== */
+        .input-field {
+            background: #162033;
+            border: 1.5px solid #243250;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #F5F0E6;
+            font-size: 15px;
+            width: 100%;
+            outline: none;
+            font-family: 'Inter', system-ui, sans-serif;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus { border-color: #7FE7C4; }
+        .input-field::placeholder { color: #8493AC; }
 
-    .mt-card {
-      border-radius: 16px;
-      padding: 12px 14px;
-      background: linear-gradient(135deg, rgba(45,212,191,0.12), rgba(8,47,73,0.96));
-      border: 1px solid rgba(56,189,248,0.4);
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      font-size: 12px;
-    }
+        /* ========== TOAST ========== */
+        .toast-container {
+            position: absolute;
+            bottom: 70px;
+            left: 16px;
+            right: 16px;
+            z-index: 200;
+            pointer-events: none;
+        }
+        .toast {
+            background: linear-gradient(135deg, #1E2B42, #243250);
+            border: 1px solid #7FE7C4;
+            border-radius: 16px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #F5F0E6;
+            box-shadow: 0 12px 40px rgba(127,231,196,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
 
-    .mt-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
+        /* ========== BOTTOM NAV ========== */
+        .bottom-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 8px 0 20px;
+            background: #162033;
+            border-top: 1px solid rgba(245,240,230,0.06);
+            flex-shrink: 0;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-size: 10px;
+            color: #8493AC;
+            cursor: pointer;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            font-family: 'Inter', system-ui, sans-serif;
+            padding: 4px 8px;
+        }
+        .nav-item.active { color: #7FE7C4; }
+        .nav-item:hover { color: #F5F0E6; }
 
-    .mt-chip {
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.9);
-      color: #e5e7eb;
-      border: 1px solid rgba(148,163,184,0.5);
-    }
+        /* ========== TOGGLE SWITCH ========== */
+        .toggle-track {
+            width: 44px; height: 26px;
+            background: #243250;
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none;
+            flex-shrink: 0;
+        }
+        .toggle-track.on { background: #7FE7C4; }
+        .toggle-knob {
+            width: 22px; height: 22px;
+            background: #F5F0E6;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px; left: 2px;
+            transition: transform 0.3s;
+            pointer-events: none;
+        }
+        .toggle-track.on .toggle-knob { transform: translateX(18px); }
 
-    .mt-badge {
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: rgba(56,189,248,0.15);
-      color: #7dd3fc;
-      border: 1px solid rgba(56,189,248,0.5);
-    }
+        /* ========== SCANNER CORNERS ========== */
+        .corner-tl, .corner-tr, .corner-bl, .corner-br {
+            position: absolute;
+            width: 28px; height: 28px;
+            border-color: #7FE7C4;
+            border-style: solid;
+            border-width: 0;
+        }
+        .corner-tl { top: 12px; left: 12px; border-top-width: 3px; border-left-width: 3px; border-radius: 6px 0 0 0; }
+        .corner-tr { top: 12px; right: 12px; border-top-width: 3px; border-right-width: 3px; border-radius: 0 6px 0 0; }
+        .corner-bl { bottom: 12px; left: 12px; border-bottom-width: 3px; border-left-width: 3px; border-radius: 0 0 0 6px; }
+        .corner-br { bottom: 12px; right: 12px; border-bottom-width: 3px; border-right-width: 3px; border-radius: 0 0 6px 0; }
 
-    .mt-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+        @keyframes pulse-corners {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .pulse-anim { animation: pulse-corners 2s ease-in-out infinite; }
 
-    .mt-item {
-      border-radius: 12px;
-      padding: 8px 10px;
-      background: rgba(15,23,42,0.96);
-      border: 1px solid rgba(30,64,175,0.7);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-    }
+        /* ========== PROGRESS BAR ========== */
+        .progress-bar-bg { background: #243250; border-radius: 8px; height: 8px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; border-radius: 8px; transition: width 0.8s ease; }
 
-    .mt-meta {
-      font-size: 11px;
-      color: #9ca3af;
-    }
+        /* ========== FAB ========== */
+        .fab {
+            position: absolute;
+            bottom: 12px;
+            right: 16px;
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7FE7C4, #3FB68C);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(127,231,196,0.4);
+            z-index: 50;
+            transition: transform 0.15s;
+            color: #0E1726;
+            font-size: 24px;
+            font-weight: 700;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .fab:hover { transform: scale(1.1); }
 
-    .mt-avatars {
-      display: flex;
-      gap: 4px;
-    }
+        /* ========== MISC ========== */
+        .avatar-circle {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+        }
+        .divider { height: 1px; background: rgba(245,240,230,0.08); }
 
-    .mt-avatar {
-      width: 18px;
-      height: 18px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #22c55e, #14b8a6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-    }
+        /* Badge grid */
+        .badge-card { transition: transform 0.2s; }
+        .badge-card:hover { transform: translateY(-2px); }
 
-    .mt-btn {
-      margin-top: auto;
-      width: 100%;
-      border-radius: 999px;
-      padding: 10px 14px;
-      border: none;
-      background: linear-gradient(135deg, #22c55e, #06b6d4);
-      color: white;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      box-shadow: 0 12px 30px rgba(8,145,178,0.6);
-    }
+        /* Chevron expand */
+        .chevron-icon { transition: transform 0.3s; }
+        .chevron-icon.rotated { transform: rotate(180deg); }
 
-    .mt-btn span {
-      font-size: 14px;
-    }
+        /* Glow border for current tier */
+        .glow-gold { box-shadow: 0 0 20px rgba(232,194,106,0.3), inset 0 0 20px rgba(232,194,106,0.05); }
 
-    .mt-ghost {
-      margin-top: 4px;
-      width: 100%;
-      border-radius: 999px;
-      padding: 8px 12px;
-      border: 1px solid rgba(148,163,184,0.4);
-      background: transparent;
-      color: #9ca3af;
-      font-size: 11px;
-      cursor: pointer;
-    }
+        /* Filter pills */
+        .filter-pill {
+            padding: 6px 16px;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid #243250;
+            background: #162033;
+            color: #8493AC;
+            white-space: nowrap;
+            transition: all 0.2s;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .filter-pill.active {
+            background: #7FE7C4;
+            color: #0E1726;
+            border-color: #7FE7C4;
+        }
+        .filter-pill:hover:not(.active) {
+            border-color: #7FE7C4;
+            color: #F5F0E6;
+        }
+    </style>
+</head>
+<body data-id="0">
+    <app-icon data-id="1" hidden data-icon="split" data-palette="Green"></app-icon>
 
-    .mt-steps {
-      display: flex;
-      justify-content: center;
-      gap: 4px;
-      margin-top: 8px;
-    }
+    <!-- ============================== -->
+    <!-- PHONE FRAME                    -->
+    <!-- ============================== -->
+    <div data-id="2" class="phone-frame" id="phone-frame-mltb">
 
-    .mt-step-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: rgba(75,85,99,0.9);
-    }
+        <!-- Demo Nav Dots -->
+        <div data-id="3" class="demo-nav-bar" id="demo-nav-a1b2">
+            <button data-id="4" class="demo-dot active" data-screen="1" aria-label="Screen 1"></button>
+            <button data-id="5" class="demo-dot" data-screen="2" aria-label="Screen 2"></button>
+            <button data-id="6" class="demo-dot" data-screen="3" aria-label="Screen 3"></button>
+            <button data-id="7" class="demo-dot" data-screen="4" aria-label="Screen 4"></button>
+            <button data-id="8" class="demo-dot" data-screen="5" aria-label="Screen 5"></button>
+            <button data-id="9" class="demo-dot" data-screen="6" aria-label="Screen 6"></button>
+            <button data-id="10" class="demo-dot" data-screen="7" aria-label="Screen 7"></button>
+            <button data-id="11" class="demo-dot" data-screen="8" aria-label="Screen 8"></button>
+        </div>
 
-    .mt-step-dot.active {
-      background: #fb7185;
-    }
+        <!-- Screen Area (scrollable) -->
+        <div data-id="12" class="screen-area" id="screen-area-x9k1">
 
-    .mt-tagline {
-      font-size: 11px;
-      text-align: center;
-      color: #9ca3af;
-      margin-top: 4px;
-    }
-  </style>
+            <!-- ================================ -->
+            <!-- SCREEN 1: INVITE LINK           -->
+            <!-- ================================ -->
+            <div data-id="13" class="screen active" id="screen-1" data-screen="1">
+                <div data-id="14" style="background: linear-gradient(160deg, #7FE7C4 0%, #2D9B75 60%, #0E1726 100%); min-height: 100%; display: flex; flex-direction: column; padding: 40px 24px 32px;">
 
-  <div class="mt-shell">
-    <div class="mt-status">
-      <span>9:41</span>
-      <div class="mt-pill">
-        <div class="mt-dot"></div>
-        <span>Demo · Mulatab</span>
-      </div>
+                    <!-- Logo -->
+                    <div data-id="15" style="text-align: center; margin-top: 32px;">
+                        <div data-id="16" style="display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; background: rgba(255,255,255,0.2); border-radius: 16px; font-size: 28px; font-weight: 900; color: #fff; margin-bottom: 8px; backdrop-filter: blur(8px);">M</div>
+                        <div data-id="17" style="font-size: 26px; font-weight: 800; letter-spacing: -0.5px; color: #fff;">mulatab</div>
+                        <div data-id="18" style="font-size: 14px; color: rgba(255,255,255,0.75); margin-top: 4px; font-weight: 500;">Split tabs. Stack rewards.</div>
+                    </div>
+
+                    <!-- Invite Card -->
+                    <div data-id="19" style="background: #1E2B42; border-radius: 20px; padding: 24px; margin-top: 40px; box-shadow: 0 16px 48px rgba(0,0,0,0.4);">
+                        <div data-id="20" style="text-align: center; font-size: 14px; color: #8493AC; font-weight: 500; margin-bottom: 16px;">You've been invited to join a tab!</div>
+
+                        <!-- Friend -->
+                        <div data-id="21" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                            <div data-id="22" class="avatar-circle grad-coral" style="width: 44px; height: 44px; font-size: 15px; color: #0E1726;">SM</div>
+                            <div data-id="23">
+                                <div data-id="24" style="font-weight: 700; font-size: 16px;">Sofia M.</div>
+                                <div data-id="25" style="font-size: 12px; color: #8493AC;">invited you</div>
+                            </div>
+                        </div>
+
+                        <div data-id="26" class="divider" style="margin-bottom: 16px;"></div>
+
+                        <!-- Tab Details -->
+                        <div data-id="27" style="text-align: center;">
+                            <div data-id="28" style="font-size: 20px; font-weight: 700; margin-bottom: 6px;">🍹 Rooftop Bar Night</div>
+                            <div data-id="29" style="font-size: 13px; color: #8493AC; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <span data-id="30">6 people</span>
+                                <span data-id="31" style="color: #243250;">·</span>
+                                <span data-id="32" style="color: #7FE7C4; font-weight: 600;">$24 est. your share</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CTA -->
+                    <div data-id="33" style="margin-top: 32px;">
+                        <button data-id="34" class="btn-primary" id="accept-join-btn-c3d4" style="font-size: 17px; padding: 16px;">Accept & Join Tab</button>
+                    </div>
+                    <div data-id="35" style="text-align: center; margin-top: 16px;">
+                        <button data-id="36" style="background: none; border: none; color: #7FE7C4; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'Inter', system-ui, sans-serif; text-decoration: underline; text-underline-offset: 3px;" id="signin-link-e5f6">Already have an account? Sign in</button>
+                    </div>
+
+                    <div data-id="37" style="flex: 1;"></div>
+                    <div data-id="38" style="height: 20px;"></div>
+                </div>
+            </div>
+
+            <!-- ================================ -->
+            <!-- SCREEN 2: PAYMENT CONFIRMATION  -->
+            <!-- ================================ -->
+            <div data-id="39" class="screen" id="screen-2" data-screen="2">
+                <div data-id="40" style="background: #0E1726; min-height: 100%; padding: 16px 20px 32px; display: flex; flex-direction: column;">
+
+                    <!-- Top bar -->
+                    <div data-id="41" style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                        <button data-id="42" style="background: none; border: none; color: #F5F0E6; cursor: pointer; padding: 4px;" id="back-btn-s2-g7h8" aria-label="Back">
+                            <i data-id="43" data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </button>
+                        <div data-id="44" style="font-size: 17px; font-weight: 700; flex: 1; text-align: center;">Confirm Payment</div>
+                        <div data-id="45" style="width: 28px;"></div>
+                    </div>
+
+                    <!-- Summary Card -->
+                    <div data-id="46" style="background: #1E2B42; border-radius: 20px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+                        <!-- Tab name + avatars -->
+                        <div data-id="47" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                            <div data-id="48" style="font-size: 16px; font-weight: 700;">Rooftop Bar Night 🍹</div>
+                            <div data-id="49" style="display: flex; align-items: center;">
+                                <div data-id="50" class="avatar-circle" style="width: 26px; height: 26px; font-size: 9px; background: #7FE7C4; color: #0E1726; margin-right: -8px; border: 2px solid #1E2B42; z-index: 3;">SM</div>
+                                <div data-id="51" class="avatar-circle" style="width: 26px; height: 26px; font-size: 9px; background: #7FE7C4; color: #0E1726; margin-right: -8px; border: 2px solid #1E2B42; z-index: 2;">JK</div>
+                                <div data-id="52" class="avatar-circle" style="width: 26px; height: 26px; font-size: 9px; background: #E8C26A; color: #0E1726; margin-right: -8px; border: 2px solid #1E2B42; z-index: 1;">AB</div>
+                                <div data-id="53" class="avatar-circle" style="width: 26px; height: 26px; font-size: 9px; background: #243250; border: 2px solid #1E2B42; z-index: 0;">+3</div>
+                            </div>
+                        </div>
+
+                        <div data-id="54" class="divider" style="margin-bottom: 14px;"></div>
+
+                        <!-- Line items -->
+                        <div data-id="55" style="display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
+                            <div data-id="56" style="display: flex; justify-content: space-between;"><span data-id="57" style="color: #8493AC;">Your share</span><span data-id="58">$24.00</span></div>
+                            <div data-id="59" style="display: flex; justify-content: space-between;"><span data-id="60" style="color: #8493AC;">Service fee</span><span data-id="61">$0.99</span></div>
+                            <div data-id="62" style="display: flex; justify-content: space-between;"><span data-id="63" style="color: #8493AC;">Tip (18%)</span><span data-id="64">$4.32</span></div>
+                        </div>
+
+                        <div data-id="65" class="divider" style="margin: 14px 0;"></div>
+
+                        <!-- Total -->
+                        <div data-id="66" style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 800;">
+                            <span data-id="67">Total</span><span data-id="68">$29.31</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment method -->
+                    <div data-id="69" style="display: flex; align-items: center; gap: 12px; margin-top: 20px; background: #1E2B42; border-radius: 14px; padding: 14px 16px;">
+                        <div data-id="70" style="width: 36px; height: 24px; background: linear-gradient(135deg, #1a1a4e, #3333aa); border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                            <i data-id="71" data-lucide="credit-card" class="w-4 h-4" style="color: #F5F0E6;"></i>
+                        </div>
+                        <span data-id="72" style="font-size: 14px; font-weight: 600; flex: 1;">•••• 4829</span>
+                        <button data-id="73" style="background: none; border: none; color: #7FE7C4; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', system-ui, sans-serif;" id="change-card-i9j0">Change</button>
+                    </div>
+
+                    <!-- Rewards preview -->
+                    <div data-id="74" style="background: linear-gradient(135deg, rgba(232,194,106,0.15), rgba(212,160,74,0.1)); border: 1px solid rgba(232,194,106,0.25); border-radius: 14px; padding: 12px 16px; margin-top: 16px; text-align: center;">
+                        <span data-id="75" style="font-size: 13px; font-weight: 600; color: #E8C26A;">🌟 You'll earn 145 MulaPoints on this payment!</span>
+                    </div>
+
+                    <div data-id="76" style="flex: 1;"></div>
+
+                    <!-- CTA -->
+                    <div data-id="77" style="margin-top: 24px;">
+                        <button data-id="78" class="btn-primary" id="pay-btn-k1l2" style="font-size: 17px; padding: 16px;">Pay $29.31</button>
+                    </div>
+                    <div data-id="79" style="text-align: center; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i data-id="80" data-lucide="lock" class="w-3 h-3" style="color: #8493AC;"></i>
+                        <span data-id="81" style="font-size: 11px; color: #8493AC;">Secured by Mulatab · 256-bit encryption</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================================ -->
+            <!-- SCREEN 3: DASHBOARD             -->
+            <!-- ================================ -->
+            <div data-id="82" class="screen" id="screen-3" data-screen="3">
+                <div data-id="83" style="background: #0E1726; min-height: 100%; padding: 16px 20px 90px; display: flex; flex-direction: column;">
+
+                    <!-- Top bar -->
+                    <div data-id="84" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                        <div data-id="85" style="font-size: 20px; font-weight: 700;">Hi, Carlos 👋</div>
+                        <div data-id="86" style="display: flex; align-items: center; gap: 12px;">
+                            <button data-id="87" style="background: none; border: none; color: #F5F0E6; cursor: pointer; position: relative; padding: 4px;" id="notif-bell-m3n4" aria-label="Notifications">
+                                <i data-id="88" data-lucide="bell" class="w-5 h-5"></i>
+                                <div data-id="89" style="position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; background: #7FE7C4; border-radius: 50%; border: 2px solid #0E1726;"></div>
+                            </button>
+                            <div data-id="90" class="avatar-circle grad-coral" style="width: 34px; height: 34px; font-size: 12px; color: #0E1726;">CM</div>
+                        </div>
+                    </div>
+
+                    <!-- Balance Card -->
+                    <div data-id="91" style="background: linear-gradient(135deg, #7FE7C4, #3FB68C); border-radius: 20px; padding: 24px; box-shadow: 0 12px 40px rgba(127,231,196,0.3); margin-bottom: 24px;">
+                        <div data-id="92" style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(14,23,38,0.6); margin-bottom: 4px;">MulaPoints Balance</div>
+                        <div data-id="93" style="font-size: 40px; font-weight: 800; line-height: 1.1; margin-bottom: 4px; font-variant-numeric: tabular-nums; color: #0E1726;">2,480</div>
+                        <div data-id="94" style="font-size: 13px; color: rgba(14,23,38,0.6); margin-bottom: 12px;">≈ $24.80 in rewards</div>
+                        <div data-id="95" style="display: inline-flex; align-items: center; gap: 4px; background: #E8C26A; color: #0E1726; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px;">🏆 Gold Tier</div>
+                    </div>
+
+                    <!-- Open Tabs -->
+                    <div data-id="96" style="font-size: 17px; font-weight: 700; margin-bottom: 14px;">Open Tabs</div>
+
+                    <!-- Tab Card 1 -->
+                    <div data-id="97" style="background: #1E2B42; border-radius: 16px; padding: 16px; margin-bottom: 10px;">
+                        <div data-id="98" style="display: flex; align-items: center; justify-content: space-between;">
+                            <div data-id="99">
+                                <div data-id="100" style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">Rooftop Bar Night 🍹</div>
+                                <div data-id="101" style="font-size: 12px; color: #8493AC;">6 people · You owe <span data-id="102" style="color: #7FE7C4; font-weight: 600;">$29.31</span></div>
+                            </div>
+                            <button data-id="103" class="btn-teal" style="padding: 8px 16px; font-size: 12px;" id="pay-now-dash-o5p6">Pay Now</button>
+                        </div>
+                    </div>
+
+                    <!-- Tab Card 2 -->
+                    <div data-id="104" style="background: #1E2B42; border-radius: 16px; padding: 16px; margin-bottom: 10px;">
+                        <div data-id="105" style="display: flex; align-items: center; justify-content: space-between;">
+                            <div data-id="106">
+                                <div data-id="107" style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">Sushi Lunch 🍣</div>
+                                <div data-id="108" style="font-size: 12px; color: #8493AC;">4 people · <span data-id="109" style="color: #7FE7C4; font-weight: 600;">Settled ✓</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Card 3 -->
+                    <div data-id="110" style="background: #1E2B42; border-radius: 16px; padding: 16px; margin-bottom: 10px;">
+                        <div data-id="111" style="display: flex; align-items: center; justify-content: space-between;">
+                            <div data-id="112">
+                                <div data-id="113" style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">Team Happy Hour 🍻</div>
+                                <div data-id="114" style="font-size: 12px; color: #8493AC;">8 people · <span data-id="115" style="color: #E8C26A; font-weight: 600;">Pending</span></div>
+                            </div>
+                            <button data-id="116" class="btn-outline" style="padding: 8px 16px; font-size: 12px; width: auto;" id="view-tab-q7r8">View</button>
+                        </div>
+                    </div>
+
+                    <!-- FAB -->
+                    <button data-id="117" class="fab" id="fab-add-s9t0" aria-label="Add receipt">+</button>
+                </div>
+
+                <!-- Bottom Nav -->
+                <div data-id="118" class="bottom-nav" id="bottom-nav-u1v2">
+                    <button data-id="119" class="nav-item active" data-nav="home" aria-label="Home">
+                        <i data-id="120" data-lucide="home" class="w-5 h-5"></i>
+                        <span data-id="121">Home</span>
+                    </button>
+                    <button data-id="122" class="nav-item" data-nav="tabs" aria-label="Tabs">
+                        <i data-id="123" data-lucide="receipt" class="w-5 h-5"></i>
+                        <span data-id="124">Tabs</span>
+                    </button>
+                    <button data-id="125" class="nav-item" data-nav="rewards" aria-label="Rewards">
+                        <i data-id="126" data-lucide="gift" class="w-5 h-5"></i>
+                        <span data-id="127">Rewards</span>
+                    </button>
+                    <button data-id="128" class="nav-item" data-nav="profile" aria-label="Profile">
+                        <i data-id="129" data-lucide="user" class="w-5 h-5"></i>
+                        <span data-id="130">Profile</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================================ -->
+            <!-- SCREEN 4: ADD RECEIPT — CAMERA   -->
+            <!-- ================================ -->
+            <div data-id="131" class="screen" id="screen-4" data-screen="4">
+                <div data-id="132" style="background: #0E1726; min-height: 100%; padding: 16px 20px 32px; display: flex; flex-direction: column;">
+
+                    <!-- Top bar -->
+                    <div data-id="133" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+                        <button data-id="134" style="background: none; border: none; color: #F5F0E6; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: 'Inter', system-ui, sans-serif; font-size: 17px; font-weight: 700; padding: 4px;" id="back-btn-s4-w3x4">
+                            <i data-id="135" data-lucide="arrow-left" class="w-5 h-5"></i>
+                            Add Receipt
+                        </button>
+                        <button data-id="136" style="background: none; border: none; color: #7FE7C4; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', system-ui, sans-serif;" id="manual-entry-link-y5z6">Manual Entry</button>
+                    </div>
+
+                    <!-- Camera Viewfinder -->
+                    <div data-id="137" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div data-id="138" style="width: 100%; aspect-ratio: 3/4; max-height: 400px; background: #162033; border-radius: 20px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; overflow: hidden;">
+                            <div data-id="139" class="corner-tl pulse-anim"></div>
+                            <div data-id="140" class="corner-tr pulse-anim"></div>
+                            <div data-id="141" class="corner-bl pulse-anim"></div>
+                            <div data-id="142" class="corner-br pulse-anim"></div>
+                            <i data-id="143" data-lucide="camera" class="w-10 h-10" style="color: #8493AC;"></i>
+                            <div data-id="144" style="font-size: 14px; color: #8493AC; font-weight: 500;">Point at receipt</div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div data-id="145" style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
+                        <button data-id="146" class="btn-teal" style="width: 100%; padding: 14px; font-size: 16px; border-radius: 9999px;" id="take-photo-btn-a7b8">📸 Take Photo</button>
+                        <div data-id="147" style="display: flex; align-items: center; gap: 12px;">
+                            <div data-id="148" style="flex: 1; height: 1px; background: rgba(245,240,230,0.1);"></div>
+                            <span data-id="149" style="font-size: 12px; color: #8493AC; font-weight: 500;">OR</span>
+                            <div data-id="150" style="flex: 1; height: 1px; background: rgba(245,240,230,0.1);"></div>
+                        </div>
+                        <button data-id="151" class="btn-outline" id="upload-lib-btn-c9d0">Upload from Library</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================================ -->
+            <!-- SCREEN 5: MANUAL ENTRY          -->
+            <!-- ================================ -->
+            <div data-id="152" class="screen" id="screen-5" data-screen="5">
+                <div data-id="153" style="background: #0E1726; min-height: 100%; padding: 16px 20px 32px; display: flex; flex-direction: column;">
+
+                    <!-- Top bar -->
+                    <div data-id="154" style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                        <button data-id="155" style="background: none; border: none; color: #F5F0E6; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: 'Inter', system-ui, sans-serif; font-size: 17px; font-weight: 700; padding: 4px;" id="back-btn-s5-e1f2">
+                            <i data-id="156" data-lucide="arrow-left" class="w-5 h-5"></i>
+                            Manual Entry
+                        </button>
+                    </div>
+
+                    <!-- Form Card -->
+                    <div data-id="157" style="background: #1E2B42; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Merchant -->
+                        <div data-id="158">
+                            <label data-id="159" style="font-size: 12px; font-weight: 600; color: #8493AC; margin-bottom: 6px; display: block;">Merchant / Restaurant</label>
+                            <input data-id="160" type="text" class="input-field" placeholder="e.g. Rooftop Bar" id="merchant-input-g3h4" />
+                        </div>
+                        <!-- Total Amount -->
+                        <div data-id="161">
+                            <label data-id="162" style="font-size: 12px; font-weight: 600; color: #8493AC; margin-bottom: 6px; display: block;">Total Amount</label>
+                            <div data-id="163" style="position: relative;">
+                                <span data-id="164" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #8493AC; font-size: 15px;">$</span>
+                                <input data-id="165" type="number" class="input-field" style="padding-left: 32px;" placeholder="0.00" id="total-input-i5j6" step="0.01" min="0" />
+                            </div>
+                        </div>
+                        <!-- Date -->
+                        <div data-id="166">
+                            <label data-id="167" style="font-size: 12px; font-weight: 600; color: #8493AC; margin-bottom: 6px; display: block;">Date</label>
+                            <input data-id="168" type="date" class="input-field" id="date-input-k7l8" />
+                        </div>
+                        <!-- Number of people -->
+                        <div data-id="169">
+                            <label data-id="170" style="font-size: 12px; font-weight: 600; color: #8493AC; margin-bottom: 6px; display: block;">Number of people splitting</label>
+                            <div data-id="171" style="display: flex; align-items: center; gap: 12px;">
+                                <button data-id="172" style="width: 40px; height: 40px; border-radius: 12px; background: #162033; border: 1.5px solid #243250; color: #7FE7C4; font-size: 20px; font-weight: 700; cursor: pointer; font-family: 'Inter', system-ui, sans-serif; display: flex; align-items: center; justify-content: center;" id="stepper-minus-m9n0">–</button>
+                                <span data-id="173" style="font-size: 20px; font-weight: 700; min-width: 32px; text-align: center; font-variant-numeric: tabular-nums;" id="stepper-value-o1p2">4</span>
+                                <button data-id="174" style="width: 40px; height: 40px; border-radius: 12px; background: #162033; border: 1.5px solid #243250; color: #7FE7C4; font-size: 20px; font-weight: 700; cursor: pointer; font-family: 'Inter', system-ui, sans-serif; display: flex; align-items: center; justify-content: center;" id="stepper-plus-q3r4">+</button>
+                            </div>
+                        </div>
+                        <!-- Split equally toggle -->
+                        <div data-id="175" style="display: flex; align-items: center; justify-content: space-between;">
+                            <span data-id="176" style="font-size: 14px; font-weight: 600;">Split equally?</span>
+                            <button data-id="177" class="toggle-track on" id="split-toggle-s5t6" aria-label="Toggle split equally">
+                                <div data-id="178" class="toggle-knob"></div>
+                            </button>
+                        </div>
+                        <!-- Category dropdown -->
+                        <div data-id="179">
+                            <label data-id="180" style="font-size: 12px; font-weight: 600; color: #8493AC; margin-bottom: 6px; display: block;">Tab Category</label>
+                            <select data-id="181" class="input-field" id="category-select-u7v8" style="appearance: none; cursor: pointer;">
+                                <option data-id="182" value="dining">🍽️ Dining</option>
+                                <option data-id="183" value="drinks">🍹 Drinks</option>
+                                <option data-id="184" value="entertainment">🎬 Entertainment</option>
+                                <option data-id="185" value="travel">✈️ Travel</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- CTA -->
+                    <div data-id="186" style="margin-top: 20px;">
+                        <button data-id="187" class="btn-primary" id="calc-split-btn-w9x0" style="font-size: 16px; padding: 16px;">Calculate & Split</button>
+                    </div>
+
+                    <!-- Per-person preview -->
+                    <div data-id="188" style="margin-top: 16px; text-align: center; background: #1E2B42; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; justify-content: center; gap: 8px;" id="per-person-preview-y1z2">
+                        <i data-id="189" data-lucide="users" class="w-4 h-4" style="color: #7FE7C4;"></i>
+                        <span data-id="190" style="font-size: 14px; color: #8493AC;">Per person: </span>
+                        <span data-id="191" style="font-size: 18px; font-weight: 800; color: #7FE7C4; font-variant-numeric: tabular-nums;" id="per-person-amount-a3b4">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================================ -->
+            <!-- SCREEN 6: REWARDS TIERS         -->
+            <!-- ================================ -->
+            <div data-id="192" class="screen" id="screen-6" data-screen="6">
+                <div data-id="193" style="background: linear-gradient(180deg, #162033 0%, #0E1726 100%); min-height: 100%; padding: 16px 20px 32px; display: flex; flex-direction: column;">
+
+                    <!-- Top bar -->
+                    <div data-id="194" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                        <button data-id="195" style="background: none; border: none; color: #F5F0E6; cursor: pointer; padding: 4px;" id="back-btn-s6-c5d6" aria-label="Back">
+                            <i data-id="196" data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </button>
+                        <div data-id="197" style="font-size: 17px; font-weight: 700;">Your Rewards Journey 🌟</div>
+                        <button data-id="198" style="background: none; border: none; color: #7FE7C4; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', system-ui, sans-serif;" id="badges-link-e7f8">Badges</button>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div data-id="199" style="margin-bottom: 24px;">
+                        <div data-id="200" style="display: flex; justify-content: space-between; font-size: 11px; color: #8493AC; margin-bottom: 8px; font-weight: 500;">
+                            <span data-id="201">🥉 Bronze</span>
+                            <span data-id="202">🥈 Silver</span>
+                            <span data-id="203" style="color: #E8C26A;">🏆 Gold</span>
+                            <span data-id="204">💎 Platinum</span>
+                        </div>
+                        <div data-id="205" class="progress-bar-bg">
+                            <div data-id="206" class="progress-bar-fill" style="width: 55%; background: linear-gradient(90deg, #7FE7C4, #E8C26A);"></div>
+                        </div>
+                        <div data-id="207" style="text-align: center; font-size: 11px; color: #8493AC; margin-top: 6px;">2,480 / 5,000 pts to Platinum</div>
+                    </div>
+
+                    <!-- Tier Cards -->
+                    <div data-id="208" style="display: flex; flex-direction: column; gap: 10px;">
+
+                        <!-- Bronze -->
+                        <div data-id="209" style="background: #1E2B42; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 14px; opacity: 0.6;">
+                            <div data-id="210" style="font-size: 28px;">🥉</div>
+                            <div data-id="211" style="flex: 1;">
+                                <div data-id="212" style="font-size: 15px; font-weight: 700;">Bronze</div>
+                                <div data-id="213" style="font-size: 12px; color: #8493AC;">1x points on all tabs</div>
+                            </div>
+                            <div data-id="214" style="font-size: 11px; color: #8493AC; text-align: right;">0–999<br data-id="215"/>pts</div>
+                        </div>
+
+                        <!-- Silver -->
+                        <div data-id="216" style="background: #1E2B42; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 14px; opacity: 0.6;">
+                            <div data-id="217" style="font-size: 28px;">🥈</div>
+                            <div data-id="218" style="flex: 1;">
+                                <div data-id="219" style="font-size: 15px; font-weight: 700;">Silver</div>
+                                <div data-id="220" style="font-size: 12px; color: #8493AC;">1.5x points + priority splits</div>
+                            </div>
+                            <div data-id="221" style="font-size: 11px; color: #8493AC; text-align: right;">1,000–2,499<br data-id="222"/>pts</div>
+                        </div>
+
+                        <!-- Gold (CURRENT) -->
+                        <div data-id="223" style="background: linear-gradient(135deg, #7FE7C4, #3FB68C); border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 14px; border: 1.5px solid rgba(232,194,106,0.4);" class="glow-gold">
+                            <div data-id="224" style="font-size: 28px;">🏆</div>
+                            <div data-id="225" style="flex: 1;">
+                                <div data-id="226" style="font-size: 15px; font-weight: 700; color: #0E1726;">Gold <span data-id="227" style="font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 99px; margin-left: 6px;">CURRENT</span></div>
+                                <div data-id="228" style="font-size: 12px; color: rgba(14,23,38,0.65);">2x points + cashback rewards</div>
+                            </div>
+                            <div data-id="229" style="font-size: 11px; color: rgba(14,23,38,0.6); text-align: right;">2,500–4,999<br data-id="230"/>pts</div>
+                        </div>
+
+                        <!-- Platinum (Locked) -->
+                        <div data-id="231" style="background: #1E2B42; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 14px; opacity: 0.45;">
+                            <div data-id="232" style="font-size: 28px;">💎</div>
+                            <div data-id="233" style="flex: 1;">
+                                <div data-id="234" style="font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px;">Platinum <i data-id="235" data-lucide="lock" class="w-3 h-3" style="color: #8493AC;"></i></div>
+                                <div data-id="236" style="font-size: 12px; color: #8493AC;">3x points + concierge tab support</div>
+                            </div>
+                            <div data-id="237" style="font-size: 11px; color: #8493AC; text-align: right;">5,000+<br data-id="238"/>pts</div>
+                        </div>
+                    </div>
+
+                    <!-- How to earn more -->
+                    <div data-id="239" style="margin-top: 20px;">
+                        <button data-id="240" style="width: 100%; background: #1E2B42; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border: none; cursor: pointer; color: #F5F0E6; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 600;" id="earn-more-toggle-g9h0">
+                            <span data-id="241">How to earn more points</span>
+                            <i data-id="242" data-lucide="chevron-down" class="w-4 h-4 chevron-icon" id="earn-more-chevron-i1j2"></i>
+                        </button>
+                        <div data-id="243" style="background: #1E2B42; border-radius: 0 0 14px 14px; padding: 0 16px; max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease;" id="earn-more-content-k3l4">
+                            <div data-id="244" style="padding-bottom: 14px; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: #8493AC;">
+                                <div data-id="245">🍹 <strong data-id="246" style="color: #F5F0E6;">Split a tab</strong> — earn base points on every split</div>
+                                <div data-id="247">📸 <strong data-id="248" style="color: #F5F0E6;">Scan receipts</strong> — bonus points for uploads</div>
+                                <div data-id="249">👥 <strong data-id="250" style="color: #F5F0E6;">Invite friends</strong> — 200 pts per referral</div>
+                                <div data-id="251">🔥 <strong data-id="252" style="color: #F5F0E6;">Keep a streak</strong> — 2x multiplier for weekly use</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================================ -->
+            <!-- SCREEN 7: BADGES                -->
+            <!-- ================================ -->
+            <div data-id="253" class="screen" id="screen-7" data-screen="7">
+                <div data-id="254" style="background: #0E1726; min-height: 100%; padding: 16px 20px 32px; display: flex; flex-direction: column;">
+
+                    <!-- Top bar -->
+                    <div data-id="255" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                        <button data-id="256" style="background: none; border: none; color: #F5F0E6; cursor: pointer; padding: 4px;" id="back-btn-s7-m5n6" aria-label="Back">
+                            <i data-id="257" data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </button>
+                        <div data-id="258" style="font-size: 17px; font-weight: 700; flex: 1; text-align: center;">Badges & Achievements 🏅</div>
+                        <div data-id="259" style="width: 28px;"></div>
+                    </div>
+
+                    <!-- Badge Grid -->
+                    <div data-id="260" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
+
+                        <!-- 🎯 First Split — earned -->
+                        <div data-id="261" class="badge-card" style="background: #1E2B42; border-radius: 16px; padding: 14px 8px; text-align: center; position: relative;">
+                            <div data-id="262" style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #7FE7C4, #3FB68C); display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 20px;">🎯</div>
+                            <div data-id="263" style="font-size: 11px; font-weight: 700; line-height: 1.2;">First Split</div>
+                            <div data-id="264" style="position: absolute; top: 8px; right: 8px; width: 16px; height: 16px; background: #7FE7C4; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #0E1726;">✓</div>
+                        </div>
+
+                        <!-- 🍹 Bar Hopper — earned -->
+                        <div data-id="265" class="badge-card" style="background: #1E2B42; border-radius: 16px; padding: 14px 8px; text-align: center; position: relative;">
+                            <div data-id="266" style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #7FE7C4, #3FB68C); display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 20px;">🍹</div>
+                            <div data-id="267" style="font-size: 11px; font-weight: 700; line-height: 1.2;">Bar Hopper</div>
+                            <div data-id="268" style="position: absolute; top: 8px; right: 8px; width: 16px; height: 16px; background: #7FE7C4; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #0E1726;">✓</div>
+                        </div>
+
+                        <!-- 🔥 On a Streak — earned -->
+                        <div data-id="269" class="badge-card" style="background: #1E2B42; border-radius: 16px; padding: 14px 8px; text-align: center; position: relative;">
+                            <div data-id="270" style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #E8C26A, #D4A04A); display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 20px;">🔥</div>
+                            <div data-id="271" style="font-size: 11px; font-weight: 700; line-height: 1.2;">On a Streak</div>
+                            <div data-id="272" style="position: absolute; top: 8px; right: 8px; width: 16px; height: 16px; background: #7FE7C4; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #0E1726;">✓</div>
+                        </div>
+
+                        <!-- 🍣 Foodie — in progress 60% -->
+                        <div data-id="273" class="badge-card" style="background: #1E2B42; border-radius: 16px; padding: 14px 8px; text-align: center;">
+                            <div data-id="274" style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #7FE7C4, #3FB68C); display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 20px;">🍣</div>
+                            <div data-id="275" style="font-size: 11px; font-weight: 700; line-height: 1.2; margin-bottom: 6px;">Foodie</div>
+                            <div data-id="276" class="progress-bar-bg" style="height: 4px; margin: 0 4px;">
+                                <div data-id="277" class="progress-bar-fill" style="width: 60%; background: linear-gradient(90deg, #7FE7C4, #3FB68C);"></div>
+                            </div>
+                            <div data-id="278" style="font-size: 9px; color: #8493AC; margin-top: 3px;">6/10</div>
+                        </div>
+
+                        <!-- 👑 Tab King — locked -->
+                        <div data-id="279" class="badge-card" style="background: #1E2B42; border-radius: 16px; padding: 14px 8px; text-align: center; opacity: 0.4;">
+                            <div data-id="280" style="width: 44px; height: 44px; border-radius: 12px; background: #243250; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 20px; filter: grayscale(1); position: relative;">👑
+                                <div data-id="281" style="position: absolute; inset: 0; background: rgba(14,23,38,0.5); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                    <i data-id="282" data-lucide="lock" class="w-3 h-3" style="color: #8493AC;"></i>
+                                </div>
+                            </div>
+                            <div data-id="283" style="font-size: 11px; font-weight: 700; line-height: 1.2; color: #8493AC;">Tab King</div>
+                        </div>
+
+                        <!-- ✈️ Jet Setter — locked -->
+                        <div data-id="284" class="badge-card" style="background: #1E2B42; border-radius: 16px; padding: 14px 8px; text-align: center; opacity: 0.4;">
+                            <div data-id="285" style="width: 44px; height: 44px; border-radius: 12px; background: #243250; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 20px; filter: grayscale(1); position: relative;">✈️
+                                <div data-id="286" style="position: absolute; inset: 0; background: rgba(14,23,38,0.5); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                    <i data-id="287" data-lucide="lock" class="w-3 h-3" style="color: #8493AC;"></i>
+                                </div>
+                            </div>
+                            <div data-id="288" style="font-size: 11px; font-weight: 700; line-height: 1.2; color: #8493AC;">Jet Setter</div>
+                        </div>
+
+                        <!-- 💸 Big Spender — in progress 30% -->
+                        <div data-id="289" class="badge-card" style="background: #1E2B42; border-radius: 16px; padding: 14px 8px; text-align: center;">
+                            <div data-id="290" style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #7FE7C4, #3FB68C); display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 20px;">💸</div>
+                            <div data-id="291" style="font-size: 11px; font-weight: 700; line-height: 1.2; margin-bottom: 6px;">Big Spender</div>
+                            <div data-id="292" class="progress-bar-bg" style="height: 4px; margin: 0 4px;">
+                                <div data-id="293" class="progress-bar-fill" style="width: 30%; background: linear-gradient(90deg, #7FE7C4, #3FB68C);"></div>
+                            </div>
+                            <div data-id="294" style="font-size: 9px; color: #8493AC; margin-top: 3px;">3/10</div>
+                        </div>
+
+                        <!-- 🤝 Social Butterfly — in progress 80% -->
+                        <div data-id="295" class="badge-card" style="background: #1E2B42; border-radius: 16px; padding: 14px 8px; text-align: center;">
+                            <div data-id="296" style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #E8C26A, #D4A04A); display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 20px;">🤝</div>
+                            <div data-id="297" style="font-size: 11px; font-weight: 700; line-height: 1.2; margin-bottom: 6px;">Social Butterfly</div>
+                            <div data-id="298" class="progress-bar-bg" style="height: 4px; margin: 0 4px;">
+                                <div data-id="299" class="progress-bar-fill" style="width: 80%; background: linear-gradient(90deg, #E8C26A, #D4A04A);"></div>
+                            </div>
+                            <div data-id="300" style="font-size: 9px; color: #8493AC; margin-top: 3px;">8/10</div>
+                        </div>
+
+                        <!-- 🏆 Gold Rush — earned -->
+                        <div data-id="301" class="badge-card" style="background: #1E2B42; border-radius: 16px; padding: 14px 8px; text-align: center; position: relative;">
+                            <div data-id="302" style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #E8C26A, #7FE7C4); display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 20px;">🏆</div>
+                            <div data-id="303" style="font-size: 11px; font-weight: 700; line-height: 1.2;">Gold Rush</div>
+                            <div data-id="304" style="position: absolute; top: 8px; right: 8px; width: 16px; height: 16px; background: #7FE7C4; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #0E1726;">✓</div>
+                        </div>
+                    </div>
+
+                    <!-- Share button -->
+                    <button data-id="305" class="btn-outline" style="margin-top: auto;" id="share-badges-btn-o7p8">
+                        <span data-id="306" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i data-id="307" data-lucide="share-2" class="w-4 h-4"></i>
+                            Share your badges
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================================ -->
+            <!-- SCREEN 8: MY TABS               -->
+            <!-- ================================ -->
+            <div data-id="308" class="screen" id="screen-8" data-screen="8">
+                <div data-id="309" style="background: #0E1726; min-height: 100%; padding: 16px 20px 90px; display: flex; flex-direction: column;">
+
+                    <!-- Top bar -->
+                    <div data-id="310" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                        <div data-id="311" style="font-size: 20px; font-weight: 700;">My Tabs</div>
+                        <button data-id="312" style="background: #7FE7C4; color: #0E1726; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 9999px; border: none; cursor: pointer; font-family: 'Inter', system-ui, sans-serif; display: flex; align-items: center; gap: 4px;" id="new-tab-btn-r4s5">＋ New Tab</button>
+                    </div>
+
+                    <!-- Filter Pills -->
+                    <div data-id="313" style="display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;" id="filter-pills-t6u7">
+                        <button data-id="314" class="filter-pill active" data-filter="all">All</button>
+                        <button data-id="315" class="filter-pill" data-filter="open">Open</button>
+                        <button data-id="316" class="filter-pill" data-filter="settled">Settled</button>
+                    </div>
+
+                    <!-- Section: Open -->
+                    <div data-id="317" style="font-size: 13px; font-weight: 600; color: #8493AC; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Open (2)</div>
+
+                    <!-- TAB CARD 1: Miami Weekend -->
+                    <div data-id="318" style="background: #1E2B42; border-radius: 20px; padding: 18px; margin-bottom: 12px;">
+                        <!-- Top row -->
+                        <div data-id="319" style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                            <div data-id="320" style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #FF7A6B, #FFAB6B); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">🌴</div>
+                            <div data-id="321" style="flex: 1;">
+                                <div data-id="322" style="font-size: 16px; font-weight: 700;">Miami Weekend</div>
+                            </div>
+                            <div data-id="323" style="background: #7FE7C4; color: #0E1726; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 9999px;">Open</div>
+                        </div>
+                        <!-- Second row -->
+                        <div data-id="324" style="font-size: 12px; color: #8493AC; margin-bottom: 12px;">4 people · 8 receipts</div>
+                        <div class="divider" data-id="325" style="margin-bottom: 12px;"></div>
+                        <!-- Balance row -->
+                        <div data-id="326" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                            <span data-id="327" style="font-size: 13px; color: #8493AC;">Net position</span>
+                            <span data-id="328" style="font-size: 18px; font-weight: 800; color: #7FE7C4; font-variant-numeric: tabular-nums;">+$184.00</span>
+                        </div>
+                        <!-- Bottom row -->
+                        <div data-id="329" style="display: flex; align-items: center; justify-content: space-between;">
+                            <span data-id="330" style="font-size: 11px; color: #8493AC;">🕐 Opened May 24</span>
+                            <button data-id="331" style="background: linear-gradient(135deg, #7FE7C4, #3FB68C); color: #0E1726; font-weight: 700; font-size: 12px; padding: 8px 18px; border-radius: 9999px; border: none; cursor: pointer; font-family: 'Inter', system-ui, sans-serif;" id="settle-up-btn-v8w9">Settle Up</button>
+                        </div>
+                    </div>
+
+                    <!-- TAB CARD 2: Apartment 4B -->
+                    <div data-id="332" style="background: #1E2B42; border-radius: 20px; padding: 18px; margin-bottom: 12px;">
+                        <!-- Top row -->
+                        <div data-id="333" style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                            <div data-id="334" style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #7FE7C4, #3FB68C); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">🏠</div>
+                            <div data-id="335" style="flex: 1;">
+                                <div data-id="336" style="font-size: 16px; font-weight: 700;">Apartment 4B</div>
+                            </div>
+                            <div data-id="337" style="background: #7FE7C4; color: #0E1726; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 9999px;">Open</div>
+                        </div>
+                        <!-- Second row -->
+                        <div data-id="338" style="font-size: 12px; color: #8493AC; margin-bottom: 12px;">3 roommates · monthly</div>
+                        <div class="divider" data-id="339" style="margin-bottom: 12px;"></div>
+                        <!-- Balance row -->
+                        <div data-id="340" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                            <span data-id="341" style="font-size: 13px; color: #8493AC;">Net position</span>
+                            <span data-id="342" style="font-size: 18px; font-weight: 800; color: #FF7A6B; font-variant-numeric: tabular-nums;">−$56.00</span>
+                        </div>
+                        <!-- Bottom row -->
+                        <div data-id="343" style="display: flex; align-items: center; justify-content: space-between;">
+                            <span data-id="344" style="font-size: 11px; color: #8493AC;">🔄 Recurring</span>
+                            <button data-id="345" style="background: linear-gradient(135deg, #FF7A6B, #FFAB6B); color: #0E1726; font-weight: 700; font-size: 12px; padding: 8px 18px; border-radius: 9999px; border: none; cursor: pointer; font-family: 'Inter', system-ui, sans-serif;" id="pay-apt-btn-x0y1">Pay $56</button>
+                        </div>
+                    </div>
+
+                    <!-- Section: Settled -->
+                    <div data-id="346" style="font-size: 13px; font-weight: 600; color: #8493AC; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; margin-top: 8px;">Settled (1)</div>
+
+                    <!-- TAB CARD 3: Team Happy Hour — Settled -->
+                    <div data-id="347" style="background: #1E2B42; border-radius: 20px; padding: 18px; margin-bottom: 12px; opacity: 0.65;">
+                        <!-- Top row -->
+                        <div data-id="348" style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                            <div data-id="349" style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #E8C26A, #D4A04A); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">🍻</div>
+                            <div data-id="350" style="flex: 1;">
+                                <div data-id="351" style="font-size: 16px; font-weight: 700;">Team Happy Hour</div>
+                            </div>
+                            <div data-id="352" style="background: rgba(127,231,196,0.12); color: #7FE7C4; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 9999px;">Settled ✓</div>
+                        </div>
+                        <!-- Second row -->
+                        <div data-id="353" style="font-size: 12px; color: #8493AC; margin-bottom: 12px;">8 people · 6 receipts</div>
+                        <div class="divider" data-id="354" style="margin-bottom: 12px;"></div>
+                        <!-- Balance row -->
+                        <div data-id="355" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                            <span data-id="356" style="font-size: 13px; color: #8493AC;">Net position</span>
+                            <span data-id="357" style="font-size: 18px; font-weight: 800; color: #8493AC; font-variant-numeric: tabular-nums;">$0.00</span>
+                        </div>
+                        <!-- Bottom row -->
+                        <div data-id="358" style="display: flex; align-items: center; justify-content: space-between;">
+                            <span data-id="359" style="font-size: 11px; color: #8493AC;">🕐 Closed May 15</span>
+                            <button data-id="360" style="background: transparent; border: 1.5px solid #7FE7C4; color: #7FE7C4; font-weight: 600; font-size: 12px; padding: 8px 18px; border-radius: 9999px; cursor: pointer; font-family: 'Inter', system-ui, sans-serif;" id="view-recap-btn-z2a3">View Recap</button>
+                        </div>
+                    </div>
+
+                    <!-- New Tab CTA Card -->
+                    <div data-id="361" style="border: 1.5px dashed rgba(127,231,196,0.3); border-radius: 20px; padding: 24px 18px; text-align: center; cursor: pointer; margin-top: 8px; transition: border-color 0.2s;" id="start-new-tab-btn-b4c5">
+                        <div data-id="362" style="font-size: 16px; font-weight: 700; color: #7FE7C4; margin-bottom: 4px;">＋ Start a new tab</div>
+                        <div data-id="363" style="font-size: 13px; color: #8493AC;">Invite friends and start splitting</div>
+                    </div>
+                </div>
+
+                <!-- Bottom Nav -->
+                <div data-id="364" class="bottom-nav" id="bottom-nav-s8-d6e7">
+                    <button data-id="365" class="nav-item" data-nav="home" aria-label="Home">
+                        <i data-id="366" data-lucide="home" class="w-5 h-5"></i>
+                        <span data-id="367">Home</span>
+                    </button>
+                    <button data-id="368" class="nav-item active" data-nav="tabs" aria-label="Tabs">
+                        <i data-id="369" data-lucide="receipt" class="w-5 h-5"></i>
+                        <span data-id="370">Tabs</span>
+                    </button>
+                    <button data-id="371" class="nav-item" data-nav="rewards" aria-label="Rewards">
+                        <i data-id="372" data-lucide="gift" class="w-5 h-5"></i>
+                        <span data-id="373">Rewards</span>
+                    </button>
+                    <button data-id="374" class="nav-item" data-nav="profile" aria-label="Profile">
+                        <i data-id="375" data-lucide="user" class="w-5 h-5"></i>
+                        <span data-id="376">Profile</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Toast Container -->
+        <div data-id="377" class="toast-container" id="toast-container-q9r0">
+            <div data-id="378" class="toast" id="toast-el-s1t2">
+                <span data-id="379" id="toast-icon-u3v4">✅</span>
+                <span data-id="380" id="toast-msg-w5x6">Receipt added! +145 pts</span>
+            </div>
+        </div>
     </div>
 
-    <!-- Screen 1: Hero / Get started -->
-    <div class="mt-screen active" data-screen="1">
-      <div>
-        <div class="mt-kicker">Mulatab.</div>
-        <div class="mt-title">Group money, finally solved.</div>
-        <div class="mt-sub">
-          Track who owes who, split receipts with your camera, and settle the whole tab in one tap.
-        </div>
-      </div>
+    <!-- Footer -->
+    <footer data-id="381" style="position: fixed; bottom: 8px; left: 0; right: 0; text-align: center; font-size: 11px; color: #8493AC; pointer-events: none;">
+        Mulatab demo
+    </footer>
 
-      <div class="mt-card">
-        <div class="mt-row">
-          <div>Demo tab: 🌴 Miami Weekend</div>
-          <div class="mt-chip">Sample · 4 people</div>
-        </div>
-        <div class="mt-sub">We’ll walk you through the 9 → 3 moment in under a minute.</div>
-      </div>
+    <!-- ============================== -->
+    <!-- JAVASCRIPT                      -->
+    <!-- ============================== -->
+    <script>
+        // ========== ICONS ==========
+        if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+            lucide.createIcons();
+        }
 
-      <button class="mt-btn" data-next="2">
-        <span>Get started — it’s free</span> →
-      </button>
-      <button class="mt-ghost" data-next="2">[Demo] I opened an invite link</button>
+        // ========== SCREEN NAVIGATION ==========
+        const screens = document.querySelectorAll('.screen');
+        const demoDots = document.querySelectorAll('.demo-dot');
+        let currentScreen = 1;
+        let screenHistory = [1];
 
-      <div class="mt-steps">
-        <div class="mt-step-dot active"></div>
-        <div class="mt-step-dot"></div>
-        <div class="mt-step-dot"></div>
-        <div class="mt-step-dot"></div>
-      </div>
-      <div class="mt-tagline">Step 0 · The same hero you use in your pitch.</div>
-    </div>
+        function showScreen(num, addToHistory = true) {
+            if (num === currentScreen) return;
 
-    <!-- Screen 2: How it works / Miami Weekend -->
-    <div class="mt-screen" data-screen="2">
-      <div>
-        <div class="mt-kicker">How it works</div>
-        <div class="mt-title">Four friends. Eight receipts. One clean tab.</div>
-        <div class="mt-sub">
-          Imagine a weekend in <span style="color:#7dd3fc;">Miami.</span> By Sunday, nobody remembers who paid for what.
-        </div>
-      </div>
+            // Hide current
+            screens.forEach(s => {
+                s.classList.remove('active');
+                s.style.display = 'none';
+            });
 
-      <div class="mt-card">
-        <div class="mt-row">
-          <div>🌴 Miami Weekend</div>
-          <div class="mt-chip">9 → 3</div>
-        </div>
-        <div class="mt-sub">Without Mulatab: 9 awkward Venmo requests.</div>
-        <div class="mt-sub">With Mulatab: 3 transfers, one tap, done.</div>
-      </div>
+            // Show target
+            const target = document.getElementById('screen-' + num);
+            if (target) {
+                target.style.display = 'flex';
+                // Trigger reflow for animation
+                void target.offsetWidth;
+                target.classList.add('active');
+            }
 
-      <button class="mt-btn" data-next="3">
-        <span>Show me the real app</span> →
-      </button>
-      <button class="mt-ghost" data-next="1">Back to start</button>
+            // Update dots
+            demoDots.forEach(d => {
+                d.classList.toggle('active', parseInt(d.dataset.screen) === num);
+            });
 
-      <div class="mt-steps">
-        <div class="mt-step-dot"></div>
-        <div class="mt-step-dot active"></div>
-        <div class="mt-step-dot"></div>
-        <div class="mt-step-dot"></div>
-      </div>
-      <div class="mt-tagline">Step 1 · Aha before friction, exactly like your deck.</div>
-    </div>
+            // Update bottom nav if on dashboard-adjacent screens
+            updateBottomNav(num);
 
-    <!-- Screen 3: Main app home -->
-    <div class="mt-screen" data-screen="3">
-      <div>
-        <div class="mt-kicker">Your status</div>
-        <div class="mt-title">+ $127.50 · 3 open tabs</div>
-        <div class="mt-sub">
-          You’re owed $184.00 and you owe $56.50. Miami Weekend is where you’re in the green.
-        </div>
-      </div>
+            if (addToHistory) {
+                screenHistory.push(num);
+            }
+            currentScreen = num;
 
-      <div class="mt-list">
-        <div class="mt-item">
-          <div>
-            <div>🌴 Miami Weekend</div>
-            <div class="mt-meta">4 people · 8 receipts · 2d ago</div>
-          </div>
-          <div class="mt-chip">You get +$184</div>
-        </div>
-        <div class="mt-item">
-          <div>
-            <div>🏠 Apartment 4B</div>
-            <div class="mt-meta">3 roommates · recurring</div>
-          </div>
-          <div class="mt-chip">You owe −$56.50</div>
-        </div>
-        <div class="mt-item">
-          <div>
-            <div>🎟 Coachella Fund</div>
-            <div class="mt-meta">6 people · planning</div>
-          </div>
-          <div class="mt-chip">All paid</div>
-        </div>
-      </div>
+            // Scroll to top of screen area
+            const screenArea = document.getElementById('screen-area-x9k1');
+            if (screenArea) screenArea.scrollTop = 0;
 
-      <div class="mt-card">
-        <div class="mt-row">
-          <div>
-            <div>Try Mulatab+</div>
-            <div class="mt-meta">Scan receipts, auto-detect items, tax & tip.</div>
-          </div>
-          <div class="mt-chip">14 days free</div>
-        </div>
-      </div>
+            // Re-init icons for new screen
+            if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+                lucide.createIcons();
+            }
+        }
 
-      <button class="mt-btn" data-next="4">
-        <span>Open Miami tab</span> →
-      </button>
-      <button class="mt-ghost" data-next="2">Back</button>
+        function goBack() {
+            if (screenHistory.length > 1) {
+                screenHistory.pop();
+                const prev = screenHistory[screenHistory.length - 1];
+                showScreen(prev, false);
+            }
+        }
 
-      <div class="mt-steps">
-        <div class="mt-step-dot"></div>
-        <div class="mt-step-dot"></div>
-        <div class="mt-step-dot active"></div>
-        <div class="mt-step-dot"></div>
-      </div>
-      <div class="mt-tagline">Step 2 · This matches your “main app” slide.</div>
-    </div>
+        function updateBottomNav(num) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(n => n.classList.remove('active'));
+            if (num === 3) {
+                document.querySelectorAll('[data-nav="home"]').forEach(el => el.classList.add('active'));
+            } else if (num === 6 || num === 7) {
+                document.querySelectorAll('[data-nav="rewards"]').forEach(el => el.classList.add('active'));
+            } else if (num === 8) {
+                document.querySelectorAll('[data-nav="tabs"]').forEach(el => el.classList.add('active'));
+            }
+        }
 
-    <!-- Screen 4: Add receipt + Smart settle -->
-    <div class="mt-screen" data-screen="4">
-      <div>
-        <div class="mt-kicker">🌴 Miami Weekend · sample tab</div>
-        <div class="mt-title">Add a receipt or just settle it.</div>
-        <div class="mt-sub">
-          Snap the bill, split by person, then let Mulatab collapse everyone’s IOUs into three clean transfers.
-        </div>
-      </div>
-
-      <div class="mt-list">
-        <div class="mt-item">
-          <div>
-            <div>Add receipt</div>
-            <div class="mt-meta">Scan with your camera · item-level split.</div>
-          </div>
-          <div class="mt-avatars">
-            <div class="mt-avatar">S</div>
-            <div class="mt-avatar">J</div>
-            <div class="mt-avatar">M</div>
-            <div class="mt-avatar">A</div>
-          </div>
-        </div>
-        <div class="mt-item">
-          <div>
-            <div>Smart settle (9 → 3)</div>
-            <div class="mt-meta">Everyone pays once. Nobody gets forgotten.</div>
-          </div>
-          <div class="mt-chip">Preview</div>
-        </div>
-      </div>
-
-      <div class="mt-card">
-        <div class="mt-row">
-          <div>Example settle</div>
-          <div class="mt-chip">3 transfers</div>
-        </div>
-        <div class="mt-row" style="font-size:11px;">
-          <span>Sarah → Jordan</span><span>$78</span>
-        </div>
-        <div class="mt-row" style="font-size:11px;">
-          <span>Alex → Jordan</span><span>$78</span>
-        </div>
-        <div class="mt-row" style="font-size:11px;">
-          <span>Mike → Sarah</span><span>$52</span>
-        </div>
-      </div>
-
-      <button class="mt-btn" data-next="1">
-        <span>Replay the flow</span> 🔁
-      </button>
-      <button class="mt-ghost" data-next="3">See net position again</button>
-
-      <div class="mt-steps">
-        <div class="mt-step-dot"></div>
-        <div class="mt-step-dot"></div>
-        <div class="mt-step-dot"></div>
-        <div class="mt-step-dot active"></div>
-      </div>
-      <div class="mt-tagline">Step 3 · The 9 → 3 moment, fully visualized.</div>
-    </div>
-  </div>
-
-  <script>
-    (function () {
-      const root = document.getElementById("mulatab-demo-app");
-      if (!root) return;
-      const screens = root.querySelectorAll(".mt-screen");
-      const dots = root.querySelectorAll(".mt-step-dot");
-      const buttons = root.querySelectorAll("[data-next]");
-
-      function showScreen(id) {
-        screens.forEach(s => {
-          s.classList.toggle("active", s.getAttribute("data-screen") === String(id));
+        // ========== DEMO DOT NAVIGATION ==========
+        demoDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const num = parseInt(dot.dataset.screen);
+                showScreen(num);
+            });
         });
-        dots.forEach((d, idx) => {
-          d.classList.toggle("active", idx + 1 === Number(id));
-        });
-      }
 
-      buttons.forEach(btn => {
-        btn.addEventListener("click", () => {
-          const next = btn.getAttribute("data-next");
-          if (next) showScreen(next);
+        // ========== TOAST ==========
+        function showToast(message, icon) {
+            const toastEl = document.getElementById('toast-el-s1t2');
+            const toastMsg = document.getElementById('toast-msg-w5x6');
+            const toastIcon = document.getElementById('toast-icon-u3v4');
+            if (icon) toastIcon.textContent = icon;
+            toastMsg.textContent = message;
+            toastEl.classList.add('show');
+            setTimeout(() => {
+                toastEl.classList.remove('show');
+            }, 2500);
+        }
+
+        // ========== SCREEN 1 → SCREEN 2 ==========
+        document.getElementById('accept-join-btn-c3d4').addEventListener('click', () => {
+            showScreen(2);
         });
-      });
-    })();
-  </script>
-</div>
+
+        document.getElementById('signin-link-e5f6').addEventListener('click', () => {
+            showScreen(3); // Go to dashboard (already have account)
+        });
+
+        // ========== SCREEN 2 → SCREEN 3 ==========
+        document.getElementById('back-btn-s2-g7h8').addEventListener('click', () => {
+            goBack();
+        });
+
+        document.getElementById('pay-btn-k1l2').addEventListener('click', () => {
+            showScreen(3);
+            setTimeout(() => {
+                showToast('Payment successful! +145 MulaPoints', '🎉');
+            }, 400);
+        });
+
+        // ========== SCREEN 3 ==========
+        document.getElementById('fab-add-s9t0').addEventListener('click', () => {
+            showScreen(4);
+        });
+
+        document.getElementById('pay-now-dash-o5p6').addEventListener('click', () => {
+            showScreen(2);
+        });
+
+        document.getElementById('view-tab-q7r8').addEventListener('click', () => {
+            showToast('Tab details coming soon', 'ℹ️');
+        });
+
+        // Bottom Nav (all instances)
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const nav = item.dataset.nav;
+                if (nav === 'home') showScreen(3);
+                else if (nav === 'tabs') showScreen(8);
+                else if (nav === 'rewards') showScreen(6);
+                else if (nav === 'profile') showToast('Profile coming soon', '👤');
+            });
+        });
+
+        // ========== SCREEN 4 ==========
+        document.getElementById('back-btn-s4-w3x4').addEventListener('click', () => {
+            goBack();
+        });
+
+        document.getElementById('manual-entry-link-y5z6').addEventListener('click', () => {
+            showScreen(5);
+        });
+
+        document.getElementById('take-photo-btn-a7b8').addEventListener('click', () => {
+            showScreen(3);
+            setTimeout(() => {
+                showToast('Receipt added! +145 pts', '📸');
+            }, 400);
+        });
+
+        document.getElementById('upload-lib-btn-c9d0').addEventListener('click', () => {
+            showScreen(3);
+            setTimeout(() => {
+                showToast('Receipt uploaded! +145 pts', '📎');
+            }, 400);
+        });
+
+        // ========== SCREEN 5 ==========
+        document.getElementById('back-btn-s5-e1f2').addEventListener('click', () => {
+            goBack();
+        });
+
+        // Set default date to today
+        const dateInput = document.getElementById('date-input-k7l8');
+        dateInput.value = '2026-05-31';
+
+        // Stepper
+        let stepperValue = 4;
+        const stepperDisplay = document.getElementById('stepper-value-o1p2');
+        const perPersonDisplay = document.getElementById('per-person-amount-a3b4');
+        const totalInput = document.getElementById('total-input-i5j6');
+
+        function updatePerPerson() {
+            const total = parseFloat(totalInput.value) || 0;
+            const people = stepperValue;
+            const perPerson = people > 0 ? (total / people) : 0;
+            perPersonDisplay.textContent = '$' + perPerson.toFixed(2);
+        }
+
+        document.getElementById('stepper-minus-m9n0').addEventListener('click', () => {
+            if (stepperValue > 1) {
+                stepperValue--;
+                stepperDisplay.textContent = stepperValue;
+                updatePerPerson();
+            }
+        });
+
+        document.getElementById('stepper-plus-q3r4').addEventListener('click', () => {
+            if (stepperValue < 20) {
+                stepperValue++;
+                stepperDisplay.textContent = stepperValue;
+                updatePerPerson();
+            }
+        });
+
+        totalInput.addEventListener('input', updatePerPerson);
+
+        // Toggle
+        document.getElementById('split-toggle-s5t6').addEventListener('click', function() {
+            this.classList.toggle('on');
+        });
+
+        // Calculate & Split
+        document.getElementById('calc-split-btn-w9x0').addEventListener('click', () => {
+            showScreen(3);
+            setTimeout(() => {
+                showToast('Tab split successfully! +80 pts', '✅');
+            }, 400);
+        });
+
+        // ========== SCREEN 6 ==========
+        document.getElementById('back-btn-s6-c5d6').addEventListener('click', () => {
+            goBack();
+        });
+
+        document.getElementById('badges-link-e7f8').addEventListener('click', () => {
+            showScreen(7);
+        });
+
+        // Expand/collapse "How to earn more"
+        const earnMoreToggle = document.getElementById('earn-more-toggle-g9h0');
+        const earnMoreContent = document.getElementById('earn-more-content-k3l4');
+        const earnMoreChevron = document.getElementById('earn-more-chevron-i1j2');
+        let earnMoreOpen = false;
+
+        earnMoreToggle.addEventListener('click', () => {
+            earnMoreOpen = !earnMoreOpen;
+            if (earnMoreOpen) {
+                earnMoreContent.style.maxHeight = '200px';
+                earnMoreContent.style.paddingTop = '4px';
+                earnMoreToggle.style.borderRadius = '14px 14px 0 0';
+                earnMoreChevron.classList.add('rotated');
+            } else {
+                earnMoreContent.style.maxHeight = '0';
+                earnMoreContent.style.paddingTop = '0';
+                earnMoreToggle.style.borderRadius = '14px';
+                earnMoreChevron.classList.remove('rotated');
+            }
+        });
+
+        // ========== SCREEN 7 ==========
+        document.getElementById('back-btn-s7-m5n6').addEventListener('click', () => {
+            goBack();
+        });
+
+        document.getElementById('share-badges-btn-o7p8').addEventListener('click', () => {
+            showToast('Badge link copied to clipboard!', '🔗');
+        });
+
+        // ========== SCREEN 8: MY TABS ==========
+        document.getElementById('new-tab-btn-r4s5').addEventListener('click', () => {
+            showToast('New tab feature coming in v1.0!', '🎉');
+        });
+
+        document.getElementById('settle-up-btn-v8w9').addEventListener('click', () => {
+            showScreen(2);
+        });
+
+        document.getElementById('pay-apt-btn-x0y1').addEventListener('click', () => {
+            showScreen(2);
+        });
+
+        document.getElementById('view-recap-btn-z2a3').addEventListener('click', () => {
+            showToast('Tab recap coming soon 🎊', '🎊');
+        });
+
+        document.getElementById('start-new-tab-btn-b4c5').addEventListener('click', () => {
+            showToast('New tab feature coming in v1.0!', '🎉');
+        });
+
+        // Filter pills
+        document.querySelectorAll('.filter-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                // Filter logic is visual-only for this demo
+                showToast('Filter: ' + pill.dataset.filter, '🔍');
+            });
+        });
+
+        // ========== MISC ==========
+        document.getElementById('change-card-i9j0').addEventListener('click', () => {
+            showToast('Payment methods coming soon', '💳');
+        });
+
+        document.getElementById('notif-bell-m3n4').addEventListener('click', () => {
+            showToast('No new notifications', '🔔');
+        });
+
+        // Initialize first screen
+        showScreen(1, false);
+    </script>
+</body>
+</html>

@@ -1030,9 +1030,9 @@
 <section id="investors" class="section">
   <div class="wrap">
     <div class="waitlist">
-      <span class="eyebrow">Investors &amp; beta</span>
-      <h2 style="margin-top:12px;">Get the investor brief — and the iOS beta list.</h2>
-      <p class="lede">Drop your email for the investor brief and an invite when the iOS beta opens — <strong style="color:var(--text)">June 2026</strong>. Pilot-ready groups go first.</p>
+      <span class="eyebrow">Join the waitlist</span>
+      <h2 style="margin-top:12px;">Be one of the first 500.</h2>
+      <p class="lede">Drop your email to claim your spot. <strong style="color:var(--text)">The first 500 members get 6 months of Mulatab+ free</strong> when we launch — June 2026.</p>
 
       <div id="founding-counter" style="display:none;margin:18px 0;padding:12px 18px;border:1px solid rgba(127,231,196,0.3);border-radius:12px;background:rgba(127,231,196,0.06);font-size:15px;color:var(--accent);font-weight:600;">
         <span id="founding-count">—</span> / 500 founding spots claimed
@@ -1045,10 +1045,10 @@
             <input class="wl-input" type="email" id="wl-email" name="email" inputmode="email" autocomplete="email"
                    placeholder="you@example.com" aria-describedby="wl-msg" required />
           </div>
-          <button class="btn btn-primary wl-submit" type="submit" id="wl-submit">Get the brief</button>
+          <button class="btn btn-primary wl-submit" type="submit" id="wl-submit">Join the waitlist</button>
         </div>
         <div class="wl-msg" id="wl-msg" role="status" aria-live="polite"></div>
-        <p class="wl-fine">No spam — the investor brief, one email when the beta opens, plus the occasional prototype update. Unsubscribe any time.</p>
+        <p class="wl-fine">No spam — just one email when the beta opens, plus the occasional update. Unsubscribe any time.</p>
       </form>
 
       <div class="wl-success-panel" id="wl-success" role="status" aria-live="polite">
@@ -1056,8 +1056,36 @@
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/><path d="M8 12.5l2.5 2.5L16 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span id="wl-success-title">You're on the list.</span>
         </div>
-        <p id="wl-success-body">We'll email you the investor brief and an invite the moment the iOS beta opens in June 2026.</p>
+        <p id="wl-success-body">We'll email you the moment the iOS beta opens in June 2026.</p>
         <button type="button" id="wl-reset">Add another email</button>
+      </div>
+
+      <!-- ── Investor option (secondary) ── -->
+      <div style="margin-top:40px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.1);">
+        <span class="eyebrow">Investors</span>
+        <h2 style="margin-top:12px;font-size:1.4em;">Looking to invest?</h2>
+        <p class="lede">Drop your email for the investor brief and a closer look at the numbers.</p>
+
+        <form class="wl-form" id="investor-form" novalidate>
+          <div class="wl-field">
+            <div class="wl-input-shell">
+              <label class="wl-label" for="inv-email">Email address</label>
+              <input class="wl-input" type="email" id="inv-email" name="email" inputmode="email" autocomplete="email"
+                     placeholder="you@example.com" aria-describedby="inv-msg" required />
+            </div>
+            <button class="btn btn-primary wl-submit" type="submit" id="inv-submit">Get the brief</button>
+          </div>
+          <div class="wl-msg" id="inv-msg" role="status" aria-live="polite"></div>
+        </form>
+
+        <div class="wl-success-panel" id="inv-success" role="status" aria-live="polite">
+          <div class="ttl">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/><path d="M8 12.5l2.5 2.5L16 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span id="inv-success-title">Thanks — you're on the investor list.</span>
+          </div>
+          <p id="inv-success-body">We'll send the investor brief shortly.</p>
+          <button type="button" id="inv-reset">Add another email</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1219,7 +1247,7 @@ const WAITLIST_HEADERS = {};
   function isValidEmail(v) { return EMAIL_RE.test(String(v || "").trim()); }
 
   // --- Core submit handler ---
-  async function handleSubmit({ input, msgEl, submitBtn, onSuccessUI }) {
+  async function handleSubmit({ input, msgEl, submitBtn, onSuccessUI, source }) {
     const email = input.value.trim();
     input.classList.remove("invalid");
     msgEl.className = "wl-msg";
@@ -1250,7 +1278,7 @@ const WAITLIST_HEADERS = {};
         const res = await fetch(WAITLIST_URL, {
           method: "POST",
           headers: Object.assign({ "Content-Type": "application/json" }, WAITLIST_HEADERS),
-          body: JSON.stringify({ email: email })
+          body: JSON.stringify({ email: email, source: source || "user" })
         });
         if (!res.ok) throw new Error("Request failed with status " + res.status);
         let pos = null;
@@ -1270,7 +1298,7 @@ const WAITLIST_HEADERS = {};
     }
   }
 
-  // --- Waitlist / investor form ---
+  // --- Waitlist (USER) form ---
   const form = document.getElementById("waitlist-form");
   const input = document.getElementById("wl-email");
   const msg = document.getElementById("wl-msg");
@@ -1282,14 +1310,14 @@ const WAITLIST_HEADERS = {};
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     handleSubmit({
-      input, msgEl: msg, submitBtn,
+      input, msgEl: msg, submitBtn, source: "user",
       onSuccessUI: (mode, pos) => {
         if (mode === "prototype") {
           successTitle.textContent = "Saved for prototype handoff.";
-          successBody.textContent = "Thanks — you're marked for the Mulatab beta list. We'll connect this form to the live signup system before public launch.";
+          successBody.textContent = "Thanks — you're marked for the Mulatab beta list.";
         } else {
           successTitle.textContent = pos ? ("You're number " + pos + " on the list.") : "You're on the list.";
-          successBody.textContent = "We'll email you the investor brief and an invite the moment the iOS beta opens in June 2026.";
+          successBody.textContent = "We'll email you the moment the iOS beta opens in June 2026. First 500 get 6 months of Mulatab+ free.";
         }
         form.style.display = "none";
         successPanel.classList.add("show");
@@ -1311,6 +1339,40 @@ const WAITLIST_HEADERS = {};
     msg.className = "wl-msg";
     msg.textContent = "";
     input.focus();
+  });
+
+  // --- Investor form ---
+  const invForm = document.getElementById("investor-form");
+  const invInput = document.getElementById("inv-email");
+  const invMsg = document.getElementById("inv-msg");
+  const invSubmitBtn = document.getElementById("inv-submit");
+  const invSuccessPanel = document.getElementById("inv-success");
+
+  invForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    handleSubmit({
+      input: invInput, msgEl: invMsg, submitBtn: invSubmitBtn, source: "investor",
+      onSuccessUI: () => {
+        invForm.style.display = "none";
+        invSuccessPanel.classList.add("show");
+        invSuccessPanel.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
+  });
+  invInput.addEventListener("input", () => {
+    if (invInput.classList.contains("invalid") && isValidEmail(invInput.value)) {
+      invInput.classList.remove("invalid");
+      invMsg.className = "wl-msg";
+      invMsg.textContent = "";
+    }
+  });
+  document.getElementById("inv-reset").addEventListener("click", () => {
+    invSuccessPanel.classList.remove("show");
+    invForm.style.display = "";
+    invInput.value = "";
+    invMsg.className = "wl-msg";
+    invMsg.textContent = "";
+    invInput.focus();
   });
 })();
 </script>
